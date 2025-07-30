@@ -1,44 +1,36 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>نظام الطلبات</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="sidebar">
+    <h2>القائمة</h2>
     <button onclick="showAddItem()">➕ إضافة صنف</button>
-    <button onclick="showOrderList()">📋 قائمة الطلبات</button>
+    <button onclick="showOrders()">📋 قائمة الطلبات</button>
+    <button onclick="generateCustomerLink()">📨 توليد رابط للزباين</button>
   </div>
 
   <div class="main">
-    <!-- واجهة إضافة صنف -->
-    <div id="add-item-section" class="section">
-      <h2>إضافة صنف جديد</h2>
-      <input id="item-name" placeholder="اسم الصنف">
-      <input id="item-price" placeholder="السعر (ل.ل)">
-      <textarea id="item-options" placeholder="الخصائص (مفصولة بفاصلة)"></textarea>
+    <div id="add-item" class="section">
+      <h3>إضافة صنف جديد</h3>
+      <input type="text" id="item-name" placeholder="اسم الصنف">
+      <input type="number" id="item-price" placeholder="السعر (ل.ل)">
+      <input type="text" id="item-options" placeholder="الخصائص (مفصولة بفاصلة)">
       <button onclick="addItem()">إضافة الصنف</button>
     </div>
 
-    <!-- واجهة الطلبات -->
-    <div id="order-list-section" class="section hidden">
-      <h2>قائمة الطلبات</h2>
-      <input oninput="searchItems(this.value)" placeholder="ابحث عن صنف...">
+    <div id="order-section" class="section" style="display:none;">
+      <h3>قائمة الطلبات</h3>
+      <input type="text" placeholder="ابحث عن صنف..." oninput="searchItems(this.value)">
       <div id="items-list"></div>
       <div id="selected-items"></div>
-      <div id="total-price"></div>
-      <div class="actions">
-        <button onclick="prepareOrder()">📤 تحضير الطلبية</button>
-        <button onclick="printOrder()">🖨️ طباعة</button>
-      </div>
-      <div id="link-section" class="hidden">
-        <p>انسخ هذا الرابط وارسله للزبون:</p>
-        <input type="text" id="order-link" readonly>
-        <button onclick="copyLink()">📋 نسخ الرابط</button>
-        <button onclick="openLink()">🔗 فتح الرابط</button>
-      </div>
+      <div id="total"></div>
+      <button onclick="prepareOrder()">📦 تحضير الطلبية</button>
+      <button onclick="printOrder()">🖨️ طباعة</button>
+      <div id="link-section" style="margin-top: 10px;"></div>
     </div>
   </div>
 

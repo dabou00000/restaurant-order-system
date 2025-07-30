@@ -1,160 +1,74 @@
 body {
   margin: 0;
-  font-family: 'Cairo', sans-serif;
-  direction: rtl;
+  font-family: 'Segoe UI', sans-serif;
   background: #f4f4f4;
-  color: #333;
+  direction: rtl;
 }
 
 .sidebar {
   position: fixed;
   top: 0;
-  right: 0;
-  width: 220px;
+  right: 0; /* ← بدل left: 0 إلى right: 0 */
+  width: 200px;
   height: 100%;
-  background: #2c3e50;
-  padding: 20px 10px;
+  background-color: #1e2a38;
+  padding: 20px;
   box-shadow: -2px 0 5px rgba(0,0,0,0.1);
   color: white;
+  z-index: 1000;
 }
 
 .sidebar button {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
+  display: block;
+  margin: 10px 0;
+  background: #1abc9c;
   border: none;
-  background-color: #3498db;
   color: white;
-  font-size: 16px;
-  border-radius: 6px;
+  padding: 10px;
+  width: 100%;
   cursor: pointer;
-  transition: background 0.3s;
-}
-
-.sidebar button:hover {
-  background-color: #2980b9;
 }
 
 .main {
-  margin-right: 240px;
-  padding: 20px 40px;
+  margin-right: 220px;
+  padding: 30px;
 }
 
-h2 {
-  color: #2c3e50;
-  margin-bottom: 20px;
+.section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
 }
 
-input[type="text"],
-input[type="number"],
-textarea {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0 12px 0;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 16px;
-  box-sizing: border-box;
-}
-
-textarea {
-  resize: vertical;
-  min-height: 80px;
+input[type="text"], input[type="number"] {
+  width: 300px;
+  padding: 8px;
+  margin: 5px 0;
 }
 
 button {
-  background-color: #27ae60;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  font-size: 15px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-button:hover {
-  background-color: #1e8449;
-}
-
-.item-box {
-  background: white;
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-}
-
-.item-box label {
-  margin-right: 10px;
-  font-size: 16px;
-}
-
-.selected-item {
-  background-color: #ecf0f1;
-  border: 2px solid #3498db;
-  padding: 12px;
   margin-top: 10px;
-  border-radius: 6px;
+  padding: 10px 20px;
+  background: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
-.selected-item input[type="number"] {
-  width: 80px;
-  display: inline-block;
+.item {
+  margin: 10px 0;
+  padding: 10px;
+  background: #eaeaea;
+  border-radius: 5px;
 }
 
-.selected-item label {
-  display: block;
-  margin-top: 6px;
+.option-checkbox {
+  margin-left: 10px;
 }
 
 .delete-btn {
-  background-color: #e74c3c;
-  margin-top: 10px;
-  padding: 6px 12px;
-  border: none;
-  color: white;
-  border-radius: 4px;
+  color: red;
+  margin-right: 15px;
   cursor: pointer;
-}
-
-.delete-btn:hover {
-  background-color: #c0392b;
-}
-
-.actions {
-  margin-top: 20px;
-}
-
-#total-price {
   font-weight: bold;
-  font-size: 18px;
-  margin-top: 15px;
-}
-
-#link-section {
-  margin-top: 20px;
-  background-color: #ffffff;
-  border: 1px dashed #aaa;
-  padding: 10px;
-  border-radius: 6px;
-}
-
-.hidden {
-  display: none;
-}
-
-@media only screen and (max-width: 768px) {
-  .main {
-    margin-right: 0;
-    padding: 20px;
-  }
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    box-shadow: none;
-  }
 }

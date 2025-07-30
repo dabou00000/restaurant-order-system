@@ -1,59 +1,76 @@
 let items = [];
 let selectedItems = [];
 
-function showAddItem() {
-  document.getElementById('add-item-section').classList.remove('hidden');
-  document.getElementById('order-list-section').classList.add('hidden');
+function saveItemsToLocal() {
+  localStorage.setItem("menuItems", JSON.stringify(items));
 }
 
-function showOrderList() {
-  document.getElementById('order-list-section').classList.remove('hidden');
-  document.getElementById('add-item-section').classList.add('hidden');
-  renderItems();
+function loadItemsFromLocal() {
+  let saved = localStorage.getItem("menuItems");
+  if (saved) {
+    items = JSON.parse(saved);
+  }
+}
+
+function showAddItem() {
+  document.getElementById("add-item").style.display = "block";
+  document.getElementById("order-section").style.display = "none";
+}
+
+function showOrders() {
+  document.getElementById("add-item").style.display = "none";
+  document.getElementById("order-section").style.display = "block";
+  renderItems(items);
 }
 
 function addItem() {
-  var name = document.getElementById('item-name').value.trim();
-  var price = parseInt(document.getElementById('item-price').value.trim());
-  var options = document.getElementById('item-options').value.split(',').map(function(opt) {
-    return opt.trim();
-  });
+  let name = document.getElementById("item-name").value;
+  let price = parseInt(document.getElementById("item-price").value);
+  let optionsInput = document.getElementById("item-options").value;
+  let options = optionsInput ? optionsInput.split(",").map(function(opt) { return opt.trim(); }) : [];
 
   if (name && price) {
     items.push({ name: name, price: price, options: options });
-    alert("تمت الإضافة");
-    document.getElementById('item-name').value = '';
-    document.getElementById('item-price').value = '';
-    document.getElementById('item-options').value = '';
+    saveItemsToLocal();
+    alert("تمت إضافة الصنف!");
+    document.getElementById("item-name").value = "";
+    document.getElementById("item-price").value = "";
+    document.getElementById("item-options").value = "";
   }
+}
+
+function searchItems(query) {
+  let filtered = items.filter(function(item) {
+    return item.name.toLowerCase().includes(query.toLowerCase());
+  });
+  renderItems(filtered);
 }
 
 function renderItems(list) {
-  if (!list) list = items;
-  var container = document.getElementById('items-list');
-  container.innerHTML = '';
+  let container = document.getElementById("items-list");
+  container.innerHTML = "";
 
-  if (list.length === 0) {
-    container.innerHTML = '<p>لا توجد نتائج</p>';
-    return;
-  }
-
-  for (var i = 0; i < list.length; i++) {
-    var item = list[i];
-    var id = "item" + i;
-    var box = document.createElement('div');
-    box.className = 'item-box';
-    box.innerHTML =
-      '<input type="checkbox" id="' + id + '" onchange="toggleItem(' + i + ', this.checked)">' +
-      '<label for="' + id + '">' + item.name + ' - ' + item.price.toLocaleString() + ' ل.ل</label>';
-    container.appendChild(box);
-  }
+  list.forEach(function(item, index) {
+    let div = document.createElement("div");
+    div.className = "item";
+    let checkbox = '<input type="checkbox" onchange="toggleItem(' + index + ', this.checked)"> ';
+    let label = item.name + " - " + item.price + " ل.ل";
+    div.innerHTML = checkbox + label;
+    container.appendChild(div);
+  });
 }
 
 function toggleItem(index, checked) {
-  var item = items[index];
+  let item = items[index];
   if (checked) {
-    selectedItems.push({ name: item.name, price: item.price, options: item.options, quantity: 1, selectedOptions: [] });
+    let selection = {
+      name: item.name,
+      price: item.price,
+      quantity: 1,
+      options: item.options,
+      selectedOptions: []
+    };
+    selectedItems.push(selection);
   } else {
     selectedItems = selectedItems.filter(function(i) { return i.name !== item.name; });
   }
@@ -61,45 +78,77 @@ function toggleItem(index, checked) {
 }
 
 function renderSelected() {
-  var container = document.getElementById('selected-items');
-  container.innerHTML = '';
+  let container = document.getElementById("selected-items");
+  container.innerHTML = "";
 
-  for (var i = 0; i < selectedItems.length; i++) {
-    var item = selectedItems[i];
-    var optionsHtml = '';
-    for (var j = 0; j < item.options.length; j++) {
-      var opt = item.options[j];
-      optionsHtml += '<label><input type="checkbox" onchange="toggleOption(' + i + ', \'' + opt + '\', this.checked)"> ' + opt + '</label><br>';
+  selectedItems.forEach(function(item, i) {
+    let div = document.createElement("div");
+    div.className = "item";
+    let html = item.name + " - " + item.price + " × " +
+      '<input type="number" min="1" value="' + item.quantity + '" onchange="changeQty(' + i + ', this.value)">';
+
+    if (item.options.length > 0) {
+      html += "<div>الخصائص:<br>";
+      item.options.forEach(function(opt) {
+        let checked = item.selectedOptions.includes(opt) ? "checked" : "";
+        html += '<label><input type="checkbox" value="' + opt + '" ' + checked +
+                ' onchange="toggleOption(' + i + ', this)"> ' + opt + '</label> ';
+      });
+      html += "</div>";
     }
 
-    var div = document.createElement('div');
-    div.className = 'selected-item';
-    div.innerHTML =
-      '<strong>' + item.name + '</strong> - ' + item.price.toLocaleString() + ' ل.ل<br>' +
-      '<label>الكمية: <input type="number" min="1" value="' + item.quantity + '" onchange="changeQty(' + i + ', this.value)"></label><br>' +
-      '<div>الخصائص:<br>' + optionsHtml + '</div>' +
-      '<button class="delete-btn" onclick="removeItem(' + i + ')">حذف</button>';
-    container.appendChild(div);
-  }
+    html += '<span class="delete-btn" onclick="removeItem(' + i + ')">✖ حذف</span>';
 
-  var total = selectedItems.reduce(function(sum, item) {
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+
+  calculateTotal();
+}
+
+function changeQty(index, value) {
+  selectedItems[index].quantity = parseInt(value);
+  calculateTotal();
+}
+
+function toggleOption(index, el) {
+  let val = el.value;
+  let item = selectedItems[index];
+  if (el.checked) {
+    item.selectedOptions.push(val);
+  } else {
+    item.selectedOptions = item.selectedOptions.filter(function(o) { return o !== val; });
+  }
+}
+
+function calculateTotal() {
+  let total = selectedItems.reduce(function(sum, item) {
     return sum + item.price * item.quantity;
   }, 0);
-  document.getElementById('total-price').innerText = 'المجموع الكلي: ' + total.toLocaleString() + ' ل.ل';
+  document.getElementById("total").innerText = "المجموع الكلي: " + total.toLocaleString() + " ل.ل";
 }
 
-function toggleOption(index, option, checked) {
-  var opts = selectedItems[index].selectedOptions;
-  if (checked) {
-    opts.push(option);
-  } else {
-    selectedItems[index].selectedOptions = opts.filter(function(o) { return o !== option; });
+function prepareOrder() {
+  if (selectedItems.length === 0) {
+    alert("الرجاء تحديد صنف واحد على الأقل");
+    return;
   }
+
+  let data = encodeURIComponent(JSON.stringify(selectedItems));
+  let url = window.location.origin + window.location.pathname + "?order=" + data;
+
+  let section = document.getElementById("link-section");
+  section.innerHTML = '<input type="text" value="' + url + '" id="copy-link" readonly style="width:90%;">' +
+                      '<button onclick="copyLink()">📋 نسخ الرابط</button>' +
+                      '<a href="' + url + '" target="_blank">🔗 فتح الرابط</a>';
 }
 
-function changeQty(index, val) {
-  selectedItems[index].quantity = parseInt(val);
-  renderSelected();
+function copyLink() {
+  let input = document.getElementById("copy-link");
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  alert("تم نسخ الرابط!");
 }
 
 function removeItem(index) {
@@ -107,41 +156,62 @@ function removeItem(index) {
   renderSelected();
 }
 
-function prepareOrder() {
-  if (selectedItems.length === 0) {
-    alert("يرجى اختيار صنف واحد على الأقل");
+function printOrder() {
+  let win = window.open('', '', 'width=700,height=500');
+  let html = selectedItems.map(function(item) {
+    return item.name + " × " + item.quantity + " = " + (item.price * item.quantity).toLocaleString() + " ل.ل";
+  }).join("\n");
+
+  let total = selectedItems.reduce(function(sum, item) {
+    return sum + item.price * item.quantity;
+  }, 0);
+
+  html += "\nالمجموع: " + total.toLocaleString() + " ل.ل";
+
+  win.document.write("<pre>" + html + "</pre>");
+  win.print();
+}
+
+function generateCustomerLink() {
+  if (items.length === 0) {
+    alert("أضف أصناف أولاً قبل توليد الرابط.");
     return;
   }
 
-  var data = encodeURIComponent(JSON.stringify(selectedItems));
-  var url = window.location.origin + window.location.pathname + '?order=' + data;
-  document.getElementById('order-link').value = url;
-  document.getElementById('link-section').classList.remove('hidden');
+  let data = encodeURIComponent(JSON.stringify(items));
+  let url = window.location.origin + window.location.pathname + "?menu=" + data;
+
+  let section = document.getElementById("link-section");
+  section.innerHTML = '<input type="text" value="' + url + '" id="copy-link" readonly style="width:90%;">' +
+                      '<button onclick="copyLink()">📋 نسخ الرابط</button>' +
+                      '<a href="' + url + '" target="_blank">🔗 فتح الرابط</a>';
 }
 
-function copyLink() {
-  var input = document.getElementById('order-link');
-  input.select();
-  document.execCommand('copy');
-  alert("تم نسخ الرابط ✅");
-}
-
-function openLink() {
-  var url = document.getElementById('order-link').value;
-  window.open(url, "_blank");
-}
-
-function loadFromUrl() {
-  var params = new URLSearchParams(window.location.search);
-  if (params.has('order')) {
+function loadFromURL() {
+  let params = new URLSearchParams(window.location.search);
+  if (params.has("menu")) {
     try {
-      selectedItems = JSON.parse(decodeURIComponent(params.get('order')));
-      showOrderList();
+      items = JSON.parse(decodeURIComponent(params.get("menu")));
+      document.querySelector(".sidebar").style.display = "none";
+      document.getElementById("add-item").style.display = "none";
+      document.getElementById("order-section").style.display = "block";
+      renderItems(items);
+    } catch (e) {
+      alert("فشل في قراءة القائمة.");
+    }
+  } else if (params.has("order")) {
+    try {
+      selectedItems = JSON.parse(decodeURIComponent(params.get("order")));
+      document.querySelector(".sidebar").style.display = "none";
+      document.getElementById("add-item").style.display = "none";
+      document.getElementById("order-section").style.display = "block";
       renderSelected();
     } catch (e) {
-      console.error("خطأ في قراءة الرابط");
+      alert("فشل في قراءة الطلب.");
     }
+  } else {
+    loadItemsFromLocal();  // 🟢 تحميل البيانات عند بداية الصفحة
   }
 }
 
-window.onload = loadFromUrl;
+window.onload = loadFromURL;
