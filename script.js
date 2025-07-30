@@ -50,14 +50,32 @@ function renderItems(list) {
   let container = document.getElementById("items-list");
   container.innerHTML = "";
 
+  let isCustomer = new URLSearchParams(window.location.search).has("menu") || 
+                   new URLSearchParams(window.location.search).has("order");
+
   list.forEach(function(item, index) {
     let div = document.createElement("div");
     div.className = "item";
+
     let checkbox = '<input type="checkbox" onchange="toggleItem(' + index + ', this.checked)"> ';
     let label = item.name + " - " + item.price + " ل.ل";
-    div.innerHTML = checkbox + label;
+    
+    let deleteBtn = "";
+    if (!isCustomer) {
+      deleteBtn = '<span class="delete-btn" onclick="deleteItem(' + index + ')">🗑 حذف نهائي</span>';
+    }
+
+    div.innerHTML = checkbox + label + " " + deleteBtn;
     container.appendChild(div);
   });
+}
+function deleteItem(index) {
+  let confirmDelete = confirm("هل أنت متأكد أنك تريد حذف هذا الصنف نهائيًا؟");
+  if (confirmDelete) {
+    items.splice(index, 1);
+    localStorage.setItem("items", JSON.stringify(items)); // إذا كنت تستخدم التخزين
+    renderItems(items);
+  }
 }
 
 function toggleItem(index, checked) {
