@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>نظام الطلبات</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2>القائمة ☰</h2>
+    <button onclick="showSection('add-section')">➕ إضافة صنف</button>
+    <button onclick="showSection('order-section')">📋 قائمة الطلبات</button>
+  </div>
+
+  <div class="main">
+
+    <!-- ✅ إضافة صنف -->
+    <div id="add-section" class="section">
+      <h3>➕ إضافة صنف جديد</h3>
+      <input type="text" id="item-name" placeholder="اسم الصنف">
+      <input type="number" id="item-price" placeholder="السعر (ل.ل)">
+      <input type="text" id="item-options" placeholder="اكتب الخصائص وافصل بينها بفاصلة">
+      <button onclick="addItem()">إضافة</button>
+    </div>
+
+    <!-- ✅ قائمة الطلبات -->
+    <div id="order-section" class="section hidden">
+      <h3>📋 قائمة الطلبات</h3>
+      <input type="text" placeholder="🔍 ابحث عن صنف..." oninput="searchItems(this.value)">
+      <div id="list-container"></div>
+      <hr>
+      <div id="selected-preview"></div>
+      <h4 id="total"></h4>
+      <button onclick="prepareOrder()">تحضير الطلبية</button>
+      <button onclick="printOrder()">🖨️ طباعة</button>
+    </div>
+
+    <!-- ✅ واتساب / مشاركة -->
+    <div id="whatsapp-section"></div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
