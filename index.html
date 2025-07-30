@@ -7,39 +7,39 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
   <div class="sidebar">
-    <h2>القائمة ☰</h2>
-    <button onclick="showSection('add-section')">➕ إضافة صنف</button>
-    <button onclick="showSection('order-section')">📋 قائمة الطلبات</button>
+    <button onclick="showAddItem()">➕ إضافة صنف</button>
+    <button onclick="showOrderList()">📋 قائمة الطلبات</button>
   </div>
 
   <div class="main">
-
-    <!-- ✅ إضافة صنف -->
-    <div id="add-section" class="section">
-      <h3>➕ إضافة صنف جديد</h3>
-      <input type="text" id="item-name" placeholder="اسم الصنف">
-      <input type="number" id="item-price" placeholder="السعر (ل.ل)">
-      <input type="text" id="item-options" placeholder="اكتب الخصائص وافصل بينها بفاصلة">
-      <button onclick="addItem()">إضافة</button>
+    <!-- واجهة إضافة صنف -->
+    <div id="add-item-section" class="section">
+      <h2>إضافة صنف جديد</h2>
+      <input id="item-name" placeholder="اسم الصنف">
+      <input id="item-price" placeholder="السعر (ل.ل)">
+      <textarea id="item-options" placeholder="الخصائص (مفصولة بفاصلة)"></textarea>
+      <button onclick="addItem()">إضافة الصنف</button>
     </div>
 
-    <!-- ✅ قائمة الطلبات -->
-    <div id="order-section" class="section hidden">
-      <h3>📋 قائمة الطلبات</h3>
-      <input type="text" placeholder="🔍 ابحث عن صنف..." oninput="searchItems(this.value)">
-      <div id="list-container"></div>
-      <hr>
-      <div id="selected-preview"></div>
-      <h4 id="total"></h4>
-      <button onclick="prepareOrder()">تحضير الطلبية</button>
-      <button onclick="printOrder()">🖨️ طباعة</button>
+    <!-- واجهة الطلبات -->
+    <div id="order-list-section" class="section hidden">
+      <h2>قائمة الطلبات</h2>
+      <input oninput="searchItems(this.value)" placeholder="ابحث عن صنف...">
+      <div id="items-list"></div>
+      <div id="selected-items"></div>
+      <div id="total-price"></div>
+      <div class="actions">
+        <button onclick="prepareOrder()">📤 تحضير الطلبية</button>
+        <button onclick="printOrder()">🖨️ طباعة</button>
+      </div>
+      <div id="link-section" class="hidden">
+        <p>انسخ هذا الرابط وارسله للزبون:</p>
+        <input type="text" id="order-link" readonly>
+        <button onclick="copyLink()">📋 نسخ الرابط</button>
+        <button onclick="openLink()">🔗 فتح الرابط</button>
+      </div>
     </div>
-
-    <!-- ✅ واتساب / مشاركة -->
-    <div id="whatsapp-section"></div>
-
   </div>
 
   <script src="script.js"></script>

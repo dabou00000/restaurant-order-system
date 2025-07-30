@@ -1,167 +1,147 @@
 let items = [];
 let selectedItems = [];
 
-function showSection(id) {
-  document.querySelectorAll('.section').forEach(section => {
-    section.classList.add('hidden');
-  });
-  document.getElementById(id).classList.remove('hidden');
+function showAddItem() {
+  document.getElementById('add-item-section').classList.remove('hidden');
+  document.getElementById('order-list-section').classList.add('hidden');
 }
 
-// ➕ إضافة صنف
-function addItem() {
-  let name = document.getElementById("item-name").value.trim();
-  let price = parseInt(document.getElementById("item-price").value.trim());
-  let optionsRaw = document.getElementById("item-options").value.trim();
-
-  if (!name || !price) return alert("يرجى إدخال اسم وسعر الصنف");
-
-  let options = optionsRaw ? optionsRaw.split(",").map(op => op.trim()) : [];
-
-  items.push({ name: name, price: price, options: options });
-  alert("تمت الإضافة");
-  document.getElementById("item-name").value = "";
-  document.getElementById("item-price").value = "";
-  document.getElementById("item-options").value = "";
+function showOrderList() {
+  document.getElementById('order-list-section').classList.remove('hidden');
+  document.getElementById('add-item-section').classList.add('hidden');
   renderItems();
 }
 
-// 🔍 البحث
-function searchItems(query) {
-  let filtered = items.filter(i => i.name.includes(query));
-  renderItems(filtered);
+function addItem() {
+  var name = document.getElementById('item-name').value.trim();
+  var price = parseInt(document.getElementById('item-price').value.trim());
+  var options = document.getElementById('item-options').value.split(',').map(function(opt) {
+    return opt.trim();
+  });
+
+  if (name && price) {
+    items.push({ name: name, price: price, options: options });
+    alert("تمت الإضافة");
+    document.getElementById('item-name').value = '';
+    document.getElementById('item-price').value = '';
+    document.getElementById('item-options').value = '';
+  }
 }
 
-// 📋 عرض الأصناف
-function renderItems(list = items) {
-  let listContainer = document.getElementById("list-container");
+function renderItems(list) {
+  if (!list) list = items;
+  var container = document.getElementById('items-list');
+  container.innerHTML = '';
+
   if (list.length === 0) {
-    listContainer.innerHTML = "<p>لا توجد نتائج</p>";
+    container.innerHTML = '<p>لا توجد نتائج</p>';
     return;
   }
 
-  listContainer.innerHTML = "";
-  list.forEach((item, index) => {
-    let id = "item_" + index;
-    let box = document.createElement("div");
-    box.className = "item-box";
+  for (var i = 0; i < list.length; i++) {
+    var item = list[i];
+    var id = "item" + i;
+    var box = document.createElement('div');
+    box.className = 'item-box';
     box.innerHTML =
-      '<input type="checkbox" id="' + id + '" onchange="toggleItem(' + index + ', this.checked)">' +
-      '<label for="' + id + '">' + item.name + ' - ' + item.price + ' ل.ل</label>';
-    listContainer.appendChild(box);
-  });
+      '<input type="checkbox" id="' + id + '" onchange="toggleItem(' + i + ', this.checked)">' +
+      '<label for="' + id + '">' + item.name + ' - ' + item.price.toLocaleString() + ' ل.ل</label>';
+    container.appendChild(box);
+  }
 }
 
-// ✅ عند التحديد
 function toggleItem(index, checked) {
-  let item = items[index];
+  var item = items[index];
   if (checked) {
-    selectedItems.push({
-      name: item.name,
-      price: item.price,
-      options: item.options,
-      selectedOptions: [],
-      quantity: 1
-    });
+    selectedItems.push({ name: item.name, price: item.price, options: item.options, quantity: 1, selectedOptions: [] });
   } else {
-    selectedItems = selectedItems.filter(i => i.name !== item.name);
+    selectedItems = selectedItems.filter(function(i) { return i.name !== item.name; });
   }
   renderSelected();
 }
 
-// 🔁 إعادة العرض
 function renderSelected() {
-  let container = document.getElementById("selected-preview");
-  container.innerHTML = "";
+  var container = document.getElementById('selected-items');
+  container.innerHTML = '';
 
-  selectedItems.forEach((item, i) => {
-    let div = document.createElement("div");
-    div.className = "selected-item";
-
-    let html = `
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h4>${item.name} - ${item.price} ل.ل</h4>
-        <button onclick="removeItem(${i})" style="background-color: red; color: white; border: none; padding: 5px 10px; border-radius: 4px;">❌ delete</button>
-      </div>
-      الكمية: <input type="number" min="1" value="${item.quantity}" onchange="updateQuantity(${i}, this.value)">
-    `;
-
-    // خصائص
-    if (item.options.length > 0) {
-      html += '<div class="option-box">الخصائص:<br>';
-      item.options.forEach((opt, j) => {
-        let id = "opt_" + i + "_" + j;
-        html += `
-          <input type="checkbox" id="${id}" onchange="toggleOption(${i}, '${opt}', this.checked)">
-          <label for="${id}">${opt}</label>
-        `;
-      });
-      html += '</div>';
+  for (var i = 0; i < selectedItems.length; i++) {
+    var item = selectedItems[i];
+    var optionsHtml = '';
+    for (var j = 0; j < item.options.length; j++) {
+      var opt = item.options[j];
+      optionsHtml += '<label><input type="checkbox" onchange="toggleOption(' + i + ', \'' + opt + '\', this.checked)"> ' + opt + '</label><br>';
     }
 
-    div.innerHTML = html;
+    var div = document.createElement('div');
+    div.className = 'selected-item';
+    div.innerHTML =
+      '<strong>' + item.name + '</strong> - ' + item.price.toLocaleString() + ' ل.ل<br>' +
+      '<label>الكمية: <input type="number" min="1" value="' + item.quantity + '" onchange="changeQty(' + i + ', this.value)"></label><br>' +
+      '<div>الخصائص:<br>' + optionsHtml + '</div>' +
+      '<button class="delete-btn" onclick="removeItem(' + i + ')">حذف</button>';
     container.appendChild(div);
-  });
+  }
 
-  calculateTotal();
+  var total = selectedItems.reduce(function(sum, item) {
+    return sum + item.price * item.quantity;
+  }, 0);
+  document.getElementById('total-price').innerText = 'المجموع الكلي: ' + total.toLocaleString() + ' ل.ل';
 }
 
-// ✅ تغيير خصائص الصنف
 function toggleOption(index, option, checked) {
-  let opts = selectedItems[index].selectedOptions;
+  var opts = selectedItems[index].selectedOptions;
   if (checked) {
-    if (!opts.includes(option)) opts.push(option);
+    opts.push(option);
   } else {
-    selectedItems[index].selectedOptions = opts.filter(op => op !== option);
+    selectedItems[index].selectedOptions = opts.filter(function(o) { return o !== option; });
   }
 }
 
-// 🖨️ طباعة الطلب
-function printOrder() {
-  let text = selectedItems.map(item => {
-    return item.name + " × " + item.quantity + " = " + (item.price * item.quantity).toLocaleString() + " ل.ل";
-  }).join("\n");
-
-  let total = selectedItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-  let win = window.open("", "", "width=700,height=600");
-  win.document.write("<pre>الطلب:\n" + text + "\n\nالمجموع: " + total.toLocaleString() + " ل.ل</pre>");
-  win.print();
+function changeQty(index, val) {
+  selectedItems[index].quantity = parseInt(val);
+  renderSelected();
 }
 
-// 🔗 توليد رابط للزبون
+function removeItem(index) {
+  selectedItems.splice(index, 1);
+  renderSelected();
+}
+
 function prepareOrder() {
-  const box = document.getElementById("whatsapp-section");
-  box.innerHTML = ""; // امسح المحتوى السابق
+  if (selectedItems.length === 0) {
+    alert("يرجى اختيار صنف واحد على الأقل");
+    return;
+  }
 
-  // إذا في selectedItems (يعني في زبون حدد طلب)
-  if (selectedItems.length > 0) {
-    const orderText = selectedItems.map(function(item) {
-      const options = item.selectedOptions.join(" - ");
-      return item.name + " × " + item.quantity + " = " + (item.price * item.quantity).toLocaleString() + " ل.ل" +
-             (options ? "\n➤ الإضافات: " + options : "");
-    }).join("\n\n");
+  var data = encodeURIComponent(JSON.stringify(selectedItems));
+  var url = window.location.origin + window.location.pathname + '?order=' + data;
+  document.getElementById('order-link').value = url;
+  document.getElementById('link-section').classList.remove('hidden');
+}
 
-    const total = selectedItems.reduce(function(sum, item) {
-      return sum + (item.price * item.quantity);
-    }, 0);
+function copyLink() {
+  var input = document.getElementById('order-link');
+  input.select();
+  document.execCommand('copy');
+  alert("تم نسخ الرابط ✅");
+}
 
-    const message = encodeURIComponent(orderText + "\n\nالمجموع: " + total.toLocaleString() + " ل.ل");
+function openLink() {
+  var url = document.getElementById('order-link').value;
+  window.open(url, "_blank");
+}
 
-    box.innerHTML = `
-      <hr>
-      <input type="text" id="whatsapp-number" placeholder="📱 أدخل رقم واتساب">
-      <button onclick="sendToWhatsApp('${message}')">📤 إرسال إلى واتساب</button>
-    `;
-  } else {
-    // إذا ما في طلب مختار: توليد رابط للزبون
-    const data = JSON.stringify(items); // نحفظ فقط قائمة الأصناف
-    const base = location.href.split("?")[0];
-    const link = base + "?order=" + encodeURIComponent(data);
-
-    box.innerHTML = `
-      <hr>
-      <p>📎 انسخ هذا الرابط وأرسله للزبون:</p>
-      <input type="text" value="${link}" readonly style="width:100%; padding:10px; margin-top:10px">
-    `;
+function loadFromUrl() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.has('order')) {
+    try {
+      selectedItems = JSON.parse(decodeURIComponent(params.get('order')));
+      showOrderList();
+      renderSelected();
+    } catch (e) {
+      console.error("خطأ في قراءة الرابط");
+    }
   }
 }
+
+window.onload = loadFromUrl;
