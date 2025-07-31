@@ -283,37 +283,26 @@ function printOrder() {
   console.log("تم الانتهاء من طباعة الطلب"); // للتأكد من الانتهاء
 }
 function generateCustomerLink() {
-  loadItemsFromLocal(); // تحميل الأصناف من التخزين المحلي
-
   if (items.length === 0) {
-    alert("أضف أصناف أولاً قبل توليد الرابط.");
+    alert("❌ أضف أصناف أولاً قبل توليد الرابط.");
     return;
   }
 
-  // 🔒 تحويل الأصناف إلى بيانات URL
-  const encodedItems = encodeURIComponent(JSON.stringify(items));
-  const longUrl = window.location.origin + window.location.pathname + "?order=" + encodedItems;
+  let data = encodeURIComponent(JSON.stringify(items));
+  let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
 
-  // 📦 استخدم clck.ru لاختصار الرابط (هو الأفضل عبر الموبايل)
-  fetch("https://clck.ru/--?url=" + encodeURIComponent(longUrl))
+  fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
     .then(response => response.text())
     .then(shortUrl => {
-      const section = document.getElementById("link-section");
+      let section = document.getElementById("link-section");
       section.innerHTML = `
-        <input type="text" value="${shortUrl}" readonly style="width: 90%; padding: 8px;">
-        <div style="margin-top:10px;">
-          <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a>
-        </div>
-        <div style="margin-top:10px;">
-          <a href="https://wa.me/?text=${encodeURIComponent(shortUrl)}" target="_blank">
-            📩 إرسال عبر واتساب
-          </a>
-        </div>
+        <input type="text" value="${shortUrl}" readonly style="width:90%; padding: 8px;">
+        <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a>
+        <a href="https://wa.me/?text=${encodeURIComponent("رابط قائمة الطلب:\n" + shortUrl)}" target="_blank">📲 إرسال عبر واتساب</a>
       `;
     })
-    .catch(err => {
-      console.error(err);
-      alert("فشل في توليد الرابط المختصر. حاول لاحقًا.");
+    .catch(error => {
+      alert("❌ فشل في توليد الرابط.");
     });
 
 
@@ -321,34 +310,29 @@ function generateCustomerLink() {
   console.log("تم الانتهاء من توليد رابط الزبون");
 }
 
-function loadFromURL() {
-  let params = new URLSearchParams(window.location.search);
-  if (params.has("order")) {
+function loadFinalOrderFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("final")) {
     try {
-      let orderData = params.get("order");
-      console.log("البيانات الخام من الرابط:", orderData);
-      items = JSON.parse(decodeURIComponent(orderData));
+      const data = JSON.parse(decodeURIComponent(params.get("final")));
+      selectedItems = data.order || [];
 
-      document.querySelector(".sidebar").style.display = "none";
+      document.getElementById("customer-info").style.display = "block";
+      document.getElementById("customer-name").value = data.name || "";
+      document.getElementById("customer-address").value = data.address || "";
+
       document.getElementById("add-item").style.display = "none";
       document.getElementById("order-section").style.display = "block";
+      document.querySelector(".sidebar").style.display = "none";
 
-      // ✅ تأجيل عرض العناصر حتى يتم تحميل كل عناصر الصفحة
-    
-        renderItems(items);
-     
+      // ✅ إظهار زر "إرسال الطلب"
+      document.getElementById("send-order-btn").style.display = "inline-block";
 
-      console.log("تم تحميل قائمة الأصناف من الرابط order:", items);
+      renderSelected();
     } catch (e) {
-      console.error("خطأ في قراءة البيانات:", e);
-      alert("فشل في قراءة الطلب.");
+      alert("❌ فشل في قراءة رابط الطلب.");
     }
-  } else {
-    loadItemsFromLocal();  // 🟢 تحميل البيانات عند بداية الصفحة
   }
-
-  console.log("تم تحميل من URL والبيانات:", items);
-  console.log("تم الانتهاء من تحميل URL");
 }
 
 window.onload = function () {
@@ -464,3 +448,25 @@ function finalizeCustomerOrder() {
 }
 }
 };
+function sendFinalOrder() {
+  const name = document.getElementById("customer-name").value.trim();
+  const address = document.getElementById("customer-address").value.trim();
+
+  if (!name || !address) {
+    alert("❗ يرجى إدخال الاسم والعنوان.");
+    return;
+  }
+
+  let message = `طلب جديد من الزبون:\n📍 الاسم: ${name}\n📦 العنوان: ${address}\n🧾 الطلب:\n`;
+
+  selectedItems.forEach(item => {
+    const options = item.selectedOptions?.length ? ` (${item.selectedOptions.join("، ")})` : "";
+    message += `- ${item.name}${options} × ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} ل.ل\n`;
+  });
+
+  let total = selectedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  message += `\n💰 المجموع الكلي: ${total.toLocaleString()} ل.ل`;
+
+  const url = "https://wa.me/?text=" + encodeURIComponent(message);
+  window.open(url, "_blank");
+}
