@@ -284,17 +284,19 @@ function generateCustomerLink() {
 }
 
 function loadFromURL() {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة أولاً
   let params = new URLSearchParams(window.location.search);
   if (params.has("order")) {
     try {
-      items = JSON.parse(decodeURIComponent(params.get("order")));
+      let orderData = params.get("order");
+      console.log("البيانات الخام من الرابط:", orderData);
+      items = JSON.parse(decodeURIComponent(orderData));
       document.querySelector(".sidebar").style.display = "none";
       document.getElementById("add-item").style.display = "none";
       document.getElementById("order-section").style.display = "block";
       renderItems(items);
       console.log("تم تحميل قائمة الأصناف من الرابط order:", items);
     } catch (e) {
+      console.error("خطأ في قراءة البيانات:", e);
       alert("فشل في قراءة الطلب.");
     }
   } else {
@@ -310,10 +312,10 @@ const isCustomerView = urlParams.has('order');
 
 // ✅ تحميل الطلب من الرابط أو من التخزين المحلي
 window.onload = function () {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة أولاً
   if (isCustomerView) {
     loadFromURL(); // الزبون: تحميل الطلب من الرابط
   } else {
+    loadItemsFromLocal(); // المطعم: تحميل البيانات المحفوظة
     renderItems(items); // عرض البيانات المحملة
   }
   console.log("تم تحميل الصفحة والبيانات:", items); // للتأكد من التحميل
@@ -322,7 +324,6 @@ window.onload = function () {
 
 // ✅ تنفيذ عند تحميل الصفحة
 document.addEventListener("DOMContentLoaded", function () {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة أولاً
   const addItemSection = document.getElementById("add-item");
   const addItemBtn = document.querySelector("button[onclick='showAddItem()']");
   const customerLinkBtn = document.getElementById("generate-customer-link");
@@ -339,7 +340,7 @@ document.addEventListener("DOMContentLoaded", function () {
   } else {
     // صاحب المطعم: تفعيل زر توليد الرابط
     if (customerLinkBtn) {
-      customerLinkBtn.addEventListener("click", prepareOrder);
+      customerLinkBtn.addEventListener("click", generateCustomerLink);
     }
     renderItems(items); // عرض البيانات المحملة
   }
@@ -347,39 +348,7 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("تم الانتهاء من تحميل DOM"); // للتأكد من الانتهاء
 });
 
-function generateCustomerLink() {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل توليد الرابط
-  if (items.length === 0) {
-    alert("أضف أصناف أولاً قبل توليد الرابط.");
-    return;
-  }
 
-  let data = encodeURIComponent(JSON.stringify(items));
-  let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
-
-  fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
-    .then(response => response.text())
-    .then(shortUrl => {
-      let section = document.getElementById("link-section");
-      section.innerHTML = `
-        <div style="margin-top: 10px;">
-          <input type="text" value="${shortUrl}" readonly style="width: 90%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size:14px;">
-        </div>
-        <div style="margin-top: 10px;">
-          <a href="${shortUrl}" target="_blank" style="color: #0066cc; font-weight: bold; text-decoration: none;">🌐 فتح الرابط</a>
-        </div>
-        <div style="margin-top: 10px;">
-          <a href="https://wa.me/?text=${encodeURIComponent(shortUrl)}" target="_blank" style="background-color: #25D366; color: white; padding: 10px 15px; border-radius: 6px; font-weight: bold; text-decoration: none; display: inline-block;">📩 إرسال إلى واتساب</a>
-        </div>
-      `;
-    })
-    .catch(error => {
-      console.error(error);
-      alert("❌ فشل توليد الرابط. حاول لاحقًا.");
-    });
-  console.log("تم توليد رابط الزبون الثاني:", items); // للتأكد من التوليد
-  console.log("تم الانتهاء من توليد رابط الزبون الثاني"); // للتأكد من الانتهاء
-}
 
 function sendToWhatsApp() {
   // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
