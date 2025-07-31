@@ -336,18 +336,14 @@ function loadFinalOrderFromURL() {
 }
 
 window.onload = function () {
+  // تحميل بيانات من الرابط إذا موجودة
+  loadFinalOrderFromURL(); 
+  
+  // تحميل من localStorage فقط إذا لم يكن الرابط يحتوي على final
   const params = new URLSearchParams(window.location.search);
-
-  if (params.has("final")) {
-    loadFinalOrderFromURL(); // 🔁 تحميل الطلب النهائي من الزبون
-  } else if (params.has("order")) {
-    loadFromURL(); // ✅ تحميل الأصناف من رابط مشاركة
-  } else {
-    loadItemsFromLocal(); // 🟢 تحميل البيانات العادية لصاحب المطعم
-    renderItems(items);
+  if (!params.has("final")) {
+    loadItemsFromLocal(); 
   }
-
-  console.log("📦 تم تحميل الصفحة حسب نوع الرابط");
 };
  
 
