@@ -184,29 +184,15 @@ section.innerHTML = `
 }
 
 function getShortLink(longUrl, callback) {
-  fetch("https://api.tinyurl.com/create", {
-    method: "POST",
-    headers: {
-      "Authorization": "Bearer [mtS0zQByCNrHOjyIVNqKqg3BYupmmm39VzzklMpAefShFKJBDVDGy20IvwI4]",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      url: longUrl,
-      domain: "tinyurl.com"
+  fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
+    .then(response => response.text())
+    .then(shortUrl => {
+      callback(shortUrl);
     })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.data && data.data.tiny_url) {
-      callback(data.data.tiny_url);
-    } else {
-      throw new Error("رابط غير متوفر");
-    }
-  })
-  .catch(error => {
-    console.error(error);
-    alert("❌ خطأ في الاتصال بموقع الاختصار.");
-  });
+    .catch(error => {
+      console.error(error);
+      alert("❌ فشل اختصار الرابط.");
+    });
 }
 
 function removeItem(index) {
