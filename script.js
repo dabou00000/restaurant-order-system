@@ -178,7 +178,7 @@ function prepareOrder() {
       alert("❌ فشل اختصار الرابط. حاول لاحقًا.");
     });
 }
-
+document.getElementById("generate-customer-link").addEventListener("click", prepareOrder);
 
 function removeItem(index) {
   selectedItems.splice(index, 1);
