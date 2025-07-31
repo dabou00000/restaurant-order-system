@@ -287,10 +287,9 @@ function generateCustomerLink() {
     });
 }
 function generateEmptyCustomerLink() {
-  let baseUrl = window.location.origin + window.location.pathname;
-  let emptyUrl = baseUrl + "?order=[]";
+  let longUrl = window.location.origin + window.location.pathname + "?order=[]";
 
-  fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(emptyUrl))
+  fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
     .then(response => response.text())
     .then(shortUrl => {
       let section = document.getElementById("link-section");
@@ -308,6 +307,6 @@ function generateEmptyCustomerLink() {
     })
     .catch(error => {
       console.error(error);
-      alert("❌ فشل توليد الرابط. حاول لاحقًا.");
+      alert("❌ فشل توليد الرابط، حاول لاحقًا.");
     });
 }
