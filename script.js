@@ -314,10 +314,14 @@ function loadFromURL() {
       let orderData = params.get("order");
       console.log("البيانات الخام من الرابط:", orderData);
       items = JSON.parse(decodeURIComponent(orderData));
+
       document.querySelector(".sidebar").style.display = "none";
       document.getElementById("add-item").style.display = "none";
       document.getElementById("order-section").style.display = "block";
+
+      // ✅ الحل هنا: عرض العناصر مباشرة عند فتح الرابط
       renderItems(items);
+
       console.log("تم تحميل قائمة الأصناف من الرابط order:", items);
     } catch (e) {
       console.error("خطأ في قراءة البيانات:", e);
@@ -326,8 +330,9 @@ function loadFromURL() {
   } else {
     loadItemsFromLocal();  // 🟢 تحميل البيانات عند بداية الصفحة
   }
-  console.log("تم تحميل من URL والبيانات:", items); // للتأكد من التحميل
-  console.log("تم الانتهاء من تحميل URL"); // للتأكد من الانتهاء
+
+  console.log("تم تحميل من URL والبيانات:", items);
+  console.log("تم الانتهاء من تحميل URL");
 }
 
 // ✅ تحميل الطلب من الرابط أو من التخزين المحلي
