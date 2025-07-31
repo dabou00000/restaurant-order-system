@@ -1,17 +1,6 @@
 let items = [];
 let selectedItems = [];
 
-function saveItemsToLocal() {
-  localStorage.setItem("menuItems", JSON.stringify(items));
-}
-
-function loadItemsFromLocal() {
-  let saved = localStorage.getItem("menuItems");
-  if (saved) {
-    items = JSON.parse(saved);
-  }
-}
-
 function showAddItem() {
   document.getElementById("add-item").style.display = "block";
   document.getElementById("order-section").style.display = "none";
@@ -31,12 +20,22 @@ function addItem() {
 
   if (name && price) {
     items.push({ name, price, options });
-    localStorage.setItem("items", JSON.stringify(items));
     saveItemsToLocal();
     alert("تمت إضافة الصنف!");
     document.getElementById("item-name").value = "";
     document.getElementById("item-price").value = "";
     document.getElementById("item-options").value = "";
+  }
+}
+
+function saveItemsToLocal() {
+  localStorage.setItem("items", JSON.stringify(items));
+}
+
+function loadItemsFromLocal() {
+  let stored = localStorage.getItem("items");
+  if (stored) {
+    items = JSON.parse(stored);
   }
 }
 
@@ -49,44 +48,26 @@ function renderItems(list) {
   let container = document.getElementById("items-list");
   container.innerHTML = "";
 
-  let isCustomer = new URLSearchParams(window.location.search).has("order");
-
   list.forEach((item, index) => {
     let div = document.createElement("div");
     div.className = "item";
-
     let checkbox = '<input type="checkbox" onchange="toggleItem(' + index + ', this.checked)"> ';
     let label = item.name + " - " + item.price + " ل.ل";
-
-    let deleteBtn = !isCustomer
-      ? '<span class="delete-btn" onclick="deleteItem(' + index + ')">🗑 حذف نهائي</span>'
-      : "";
-
-    div.innerHTML = checkbox + label + " " + deleteBtn;
+    div.innerHTML = checkbox + label;
     container.appendChild(div);
   });
-}
-
-function deleteItem(index) {
-  let confirmDelete = confirm("هل أنت متأكد أنك تريد حذف هذا الصنف نهائيًا؟");
-  if (confirmDelete) {
-    items.splice(index, 1);
-    saveItemsToLocal();
-    renderItems(items);
-  }
 }
 
 function toggleItem(index, checked) {
   let item = items[index];
   if (checked) {
-    let selection = {
+    selectedItems.push({
       name: item.name,
       price: item.price,
       quantity: 1,
       options: item.options,
       selectedOptions: []
-    };
-    selectedItems.push(selection);
+    });
   } else {
     selectedItems = selectedItems.filter(i => i.name !== item.name);
   }
@@ -114,6 +95,7 @@ function renderSelected() {
     }
 
     html += '<span class="delete-btn" onclick="removeItem(' + i + ')">✖ حذف</span>';
+
     div.innerHTML = html;
     container.appendChild(div);
   });
@@ -141,6 +123,11 @@ function calculateTotal() {
   document.getElementById("total").innerText = "المجموع الكلي: " + total.toLocaleString() + " ل.ل";
 }
 
+function removeItem(index) {
+  selectedItems.splice(index, 1);
+  renderSelected();
+}
+
 function prepareOrder() {
   if (selectedItems.length === 0) {
     alert("الرجاء تحديد صنف واحد على الأقل");
@@ -155,49 +142,33 @@ function prepareOrder() {
     .then(shortUrl => {
       let section = document.getElementById("link-section");
       section.innerHTML = `
-        <div style="margin-top: 10px;">
-          <input type="text" value="${shortUrl}" readonly style="width: 90%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
-        </div>
-        <div style="margin-top: 10px;">
-          <a href="${shortUrl}" target="_blank" style="color: #0066cc; font-weight: bold; text-decoration: none;">🌐 فتح الرابط</a>
-        </div>
-        <div style="margin-top: 10px;">
-          <a href="https://wa.me/?text=${encodeURIComponent(shortUrl)}" target="_blank" style="background-color: #25D366; color: white; padding: 10px 15px; border-radius: 6px; font-weight: bold; text-decoration: none;">📩 إرسال إلى واتساب</a>
-        </div>
+        <input type="text" value="${shortUrl}" readonly style="width:90%;">
+        <br>
+        <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a>
+        <br>
+        <a href="https://wa.me/?text=${encodeURIComponent(shortUrl)}" target="_blank">📩 إرسال إلى واتساب</a>
       `;
     })
-    .catch(error => {
-      console.error(error);
-      alert("❌ فشل اختصار الرابط. حاول لاحقًا.");
+    .catch(() => {
+      alert("فشل اختصار الرابط.");
     });
 }
 
 function generateCustomerLink() {
   if (items.length === 0) {
-    alert("أضف أصناف أولاً قبل توليد الرابط.");
+    alert("أضف أصناف أولاً");
     return;
   }
 
   let data = encodeURIComponent(JSON.stringify(items));
-  let longUrl = window.location.origin + window.location.pathname + "?menu=" + data;
+  let url = window.location.origin + window.location.pathname + "?menu=" + data;
 
-  fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
-    .then(response => response.text())
-    .then(shortUrl => {
-      let section = document.getElementById("link-section");
-      section.innerHTML = `
-        <div style="margin-top: 10px;">
-          <input type="text" value="${shortUrl}" readonly style="width: 90%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
-        </div>
-        <div style="margin-top: 10px;">
-          <a href="${shortUrl}" target="_blank" style="color: #0066cc; font-weight: bold; text-decoration: none;">🌐 فتح الرابط</a>
-        </div>
-      `;
-    })
-    .catch(error => {
-      console.error(error);
-      alert("❌ فشل توليد الرابط.");
-    });
+  let section = document.getElementById("link-section");
+  section.innerHTML = `
+    <input type="text" value="${url}" readonly style="width:90%;">
+    <br>
+    <a href="${url}" target="_blank">🔗 فتح الرابط</a>
+  `;
 }
 
 function loadFromURL() {
@@ -209,7 +180,7 @@ function loadFromURL() {
       document.getElementById("add-item").style.display = "none";
       document.getElementById("order-section").style.display = "block";
       renderItems(items);
-    } catch (e) {
+    } catch {
       alert("فشل في قراءة القائمة.");
     }
   } else if (params.has("order")) {
@@ -219,7 +190,7 @@ function loadFromURL() {
       document.getElementById("add-item").style.display = "none";
       document.getElementById("order-section").style.display = "block";
       renderSelected();
-    } catch (e) {
+    } catch {
       alert("فشل في قراءة الطلب.");
     }
   } else {
@@ -227,23 +198,4 @@ function loadFromURL() {
   }
 }
 
-const urlParams = new URLSearchParams(window.location.search);
-const isCustomerView = urlParams.has('menu') || urlParams.has('order');
-
-window.onload = function () {
-  loadFromURL();
-};
-
-document.addEventListener("DOMContentLoaded", function () {
-  if (isCustomerView) {
-    document.getElementById("add-item").style.display = "none";
-    document.querySelector(".sidebar").style.display = "none";
-  }
-});
-function loadItemsFromLocal() {
-  const saved = localStorage.getItem("items");
-  if (saved) {
-    items = JSON.parse(saved);
-    renderItems(items);
-  }
-}
+window.onload = loadFromURL;
