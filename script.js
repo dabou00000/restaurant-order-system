@@ -31,6 +31,7 @@ function addItem() {
 
   if (name && price) {
     items.push({ name, price, options });
+    localStorage.setItem("items", JSON.stringify(items));
     saveItemsToLocal();
     alert("تمت إضافة الصنف!");
     document.getElementById("item-name").value = "";
@@ -239,3 +240,10 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector(".sidebar").style.display = "none";
   }
 });
+function loadItemsFromLocal() {
+  const saved = localStorage.getItem("items");
+  if (saved) {
+    items = JSON.parse(saved);
+    renderItems(items);
+  }
+}
