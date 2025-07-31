@@ -1,3 +1,4 @@
+
 let items = [];
 let saved = localStorage.getItem("menuItems");
 if (saved) {
@@ -6,14 +7,22 @@ if (saved) {
 let selectedItems = [];
 
 // تحميل البيانات المحفوظة عند بداية التطبيق
-loadItemsFromLocal();
-console.log("تم تحميل البيانات عند بداية التطبيق:", items); // للتأكد من التحميل
 
+console.log("تم تحميل البيانات عند بداية التطبيق:", items); // للتأكد من التحميل
+const urlParams = new URLSearchParams(window.location.search);
+const isCustomerView = urlParams.has('order');
 function saveItemsToLocal() {
   localStorage.setItem("menuItems", JSON.stringify(items));
   console.log("تم حفظ البيانات:", items); // للتأكد من الحفظ
   // تحميل البيانات مرة أخرى للتأكد من الحفظ
-  loadItemsFromLocal();
+const urlParams = new URLSearchParams(window.location.search);
+const isCustomerView = urlParams.has("order");
+
+if (isCustomerView) {
+  loadFromURL(); // تحميل الأصناف من الرابط إذا الزبون فتحه
+} else {
+  loadItemsFromLocal(); // تحميل من التخزين المحلي إذا صاحب المطعم
+}
   console.log("تم التأكد من الحفظ والتحميل:", items); // للتأكد من الحفظ والتحميل
 }
 
@@ -313,10 +322,6 @@ function loadFromURL() {
   console.log("تم الانتهاء من تحميل URL"); // للتأكد من الانتهاء
 }
 
-// هل الرابط يحتوي على طلب من الزبون؟
-const urlParams = new URLSearchParams(window.location.search);
-const isCustomerView = urlParams.has('order');
-
 // ✅ تحميل الطلب من الرابط أو من التخزين المحلي
 window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search);
@@ -382,3 +387,15 @@ function sendToWhatsApp() {
   console.log("تم إرسال الواتساب إلى:", number); // للتأكد من الإرسال
   console.log("تم الانتهاء من إرسال الواتساب"); // للتأكد من الانتهاء
 }
+window.onload = function () {
+  if (isCustomerView) {
+    loadFromURL(); // ✅ تحميل البيانات من الرابط
+    document.querySelector(".sidebar").style.display = "none";
+    document.getElementById("add-item").style.display = "none";
+    document.getElementById("order-section").style.display = "block";
+    document.getElementById("customer-info").style.display = "block";
+  } else {
+    loadItemsFromLocal();
+    renderItems(items);
+  }
+};
