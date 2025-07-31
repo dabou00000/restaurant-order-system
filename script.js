@@ -339,12 +339,14 @@ window.onload = function () {
   const params = new URLSearchParams(window.location.search);
 
   if (params.has("final")) {
-    localStorage.removeItem("menuItems"); // 🧹 منع تعارض البيانات القديمة
-    loadFinalOrderFromURL(); // 🔁 تحميل الطلب النهائي من الزبون
+    // الزبون فتح الطلب النهائي، احذف أي بيانات محلية قديمة
+    localStorage.removeItem("menuItems");
+    loadFinalOrderFromURL();
   } else if (params.has("order")) {
-    loadFromURL(); // ✅ تحميل الأصناف من رابط مشاركة
+    loadFromURL();
   } else {
-    loadItemsFromLocal(); // 🟢 تحميل البيانات العادية لصاحب المطعم
+    // صاحب المطعم
+    loadItemsFromLocal();
     renderItems(items);
   }
 
@@ -427,11 +429,11 @@ function finalizeCustomerOrder() {
   `;
   function loadFinalOrderFromURL() {
   const params = new URLSearchParams(window.location.search);
-
+ 
     if (params.has("final")) {
   localStorage.removeItem("menuItems"); // 🧹 إزالة البيانات القديمة من localStorage
   loadFinalOrderFromURL(); // 🔁 تحميل الطلب النهائي من الزبون
-}
+
     try {
       const data = JSON.parse(decodeURIComponent(params.get("final")));
       selectedItems = data.order || [];
