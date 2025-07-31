@@ -32,8 +32,7 @@ function addItem() {
 
   if (name && price) {
     items.push({ name: name, price: price, options: options });
-    saveItemsToLocal();
-    alert("تمت إضافة الصنف!");
+localStorage.setItem("items", JSON.stringify(items));    alert("تمت إضافة الصنف!");
     document.getElementById("item-name").value = "";
     document.getElementById("item-price").value = "";
     document.getElementById("item-options").value = "";
