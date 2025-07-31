@@ -162,13 +162,7 @@ function prepareOrder() {
                     '<a href="' + url + '" target="_blank" style="margin-right:10px;">🔗 فتح الرابط</a>';
 }
 
-function copyLink() {
-  let input = document.getElementById("copy-link");
-  input.select();
-  input.setSelectionRange(0, 99999);
-  document.execCommand("copy");
-  alert("تم نسخ الرابط!");
-}
+
 
 function removeItem(index) {
   selectedItems.splice(index, 1);
