@@ -155,20 +155,27 @@ function prepareOrder() {
   let data = encodeURIComponent(JSON.stringify(selectedItems));
   let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
 
-  getShortLink(longUrl, function(shortUrl) {
-    let section = document.getElementById("link-section");
-    section.innerHTML = `
-      <div style="margin-top: 10px;">
-        <input type="text" value="${shortUrl}" readonly style="width: 90%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
-      </div>
-      <div style="margin-top: 10px;">
-        <a href="${shortUrl}" target="_blank" style="color: #8B0000; text-decoration: none; font-weight: bold;">🌐 فتح الرابط</a>
-      </div>
-      <div style="margin-top: 10px;">
-        <a href="https://wa.me/?text=${encodeURIComponent(shortUrl)}" target="_blank" style="background-color: #25D366; color: white; padding: 10px 15px; border-radius: 6px; font-weight: bold; text-decoration: none; display: inline-block;">📩 إرسال إلى واتساب</a>
-      </div>
-    `;
-  });
+  // اختصر الرابط تلقائيًا باستخدام is.gd
+  fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
+    .then(response => response.text())
+    .then(shortUrl => {
+      let section = document.getElementById("link-section");
+      section.innerHTML = `
+        <div style="margin-top: 10px;">
+          <input type="text" value="${shortUrl}" readonly style="width: 90%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size:14px;">
+        </div>
+        <div style="margin-top: 10px;">
+          <a href="${shortUrl}" target="_blank" style="color: #0066cc; font-weight: bold; text-decoration: none;">🌐 فتح الرابط</a>
+        </div>
+        <div style="margin-top: 10px;">
+          <a href="https://wa.me/?text=${encodeURIComponent(shortUrl)}" target="_blank" style="background-color: #25D366; color: white; padding: 10px 15px; border-radius: 6px; font-weight: bold; text-decoration: none; display: inline-block;">📩 إرسال إلى واتساب</a>
+        </div>
+      `;
+    })
+    .catch(error => {
+      console.error(error);
+      alert("❌ فشل اختصار الرابط. حاول لاحقًا.");
+    });
 }
 function getShortLink(longUrl, callback) {
   fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
