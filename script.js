@@ -156,11 +156,15 @@ function prepareOrder() {
 let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
 getShortLink(longUrl, function(shortUrl) {
   let section = document.getElementById("link-section");
-  section.innerHTML = 
-    '<input type="text" value="' + shortUrl + '" readonly style="width:90%;">' +
-    '<a href="' + shortUrl + '" target="_blank">🌐 فتح الرابط</a>' +
-    '<a href="https://wa.me/?text=' + encodeURIComponent("طلبية جديدة:\n" + shortUrl) + '" target="_blank">📲 إرسال عبر واتساب</a>';
-});
+section.innerHTML = `
+  <input type="text" value="${shortUrl}" readonly style="width:90%; margin-bottom:10px;">
+  <br>
+  <a href="${shortUrl}" target="_blank" style="display:inline-block; margin:8px 0; color:#333; text-decoration:none;">🌐 فتح الرابط</a>
+  <br>
+  <button onclick="sendWhatsApp('${encoded}')" style="background-color:#25D366; color:white; padding:10px 20px; border:none; border-radius:8px; font-size:16px; cursor:pointer; margin-top:10px; display:inline-flex; align-items:center;">
+    <img src="https://img.icons8.com/ios-filled/20/ffffff/whatsapp.png" style="margin-left:8px;"/> إرسال عبر واتساب
+  </button>
+`;});
 
  let section = document.getElementById("link-section");
 let encoded = encodeURIComponent(shortUrl);
