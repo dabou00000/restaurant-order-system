@@ -153,7 +153,14 @@ function prepareOrder() {
   }
 
   let data = encodeURIComponent(JSON.stringify(selectedItems));
-  let url = window.location.origin + window.location.pathname + "?order=" + data;
+let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
+getShortLink(longUrl, function(shortUrl) {
+  let section = document.getElementById("link-section");
+  section.innerHTML = 
+    '<input type="text" value="' + shortUrl + '" readonly style="width:90%;">' +
+    '<a href="' + shortUrl + '" target="_blank">🌐 فتح الرابط</a>' +
+    '<a href="https://wa.me/?text=' + encodeURIComponent("طلبية جديدة:\n" + shortUrl) + '" target="_blank">📲 إرسال عبر واتساب</a>';
+});
 
   let section = document.getElementById("link-section");
  section.innerHTML = '<a href="https://wa.me/?text=' + encodeURIComponent(url) + '" target="_blank">' +
@@ -162,6 +169,33 @@ function prepareOrder() {
                     '<a href="' + url + '" target="_blank" style="margin-right:10px;">🔗 فتح الرابط</a>';
 }
 
+function getShortLink(longUrl, callback) {
+  fetch("https://api.tinyurl.com/create", {
+    method: "POST",
+    headers: {
+      "accept": "application/json",
+      "Content-Type": "application/json",
+      // مفتاح API مؤقت من TinyURL للنسخ السريع (يمكن تغييره لاحقًا)
+      "Authorization": "Bearer Aal77vRDnhxHb6uY3HkG566qfKRPKd5oWboycUHSPuEjqTT6uUZbsEyRzpkk"
+    },
+    body: JSON.stringify({
+      url: longUrl,
+      domain: "tinyurl.com"
+    })
+  })
+  .then(function(response) { return response.json(); })
+  .then(function(data) {
+    if (data.data && data.data.tiny_url) {
+      callback(data.data.tiny_url);
+    } else {
+      alert("فشل اختصار الرابط.");
+    }
+  })
+  .catch(function(error) {
+    console.error("Error:", error);
+    alert("خطأ في الاتصال بموقع الاختصار.");
+  });
+}
 
 
 function removeItem(index) {
@@ -192,8 +226,14 @@ function generateCustomerLink() {
   }
 
   let data = encodeURIComponent(JSON.stringify(items));
-  let url = window.location.origin + window.location.pathname + "?menu=" + data;
-
+let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
+getShortLink(longUrl, function(shortUrl) {
+  let section = document.getElementById("link-section");
+  section.innerHTML = 
+    '<input type="text" value="' + shortUrl + '" readonly style="width:90%;">' +
+    '<a href="' + shortUrl + '" target="_blank">🌐 فتح الرابط</a>' +
+    '<a href="https://wa.me/?text=' + encodeURIComponent("طلبية جديدة:\n" + shortUrl) + '" target="_blank">📲 إرسال عبر واتساب</a>';
+});
   let section = document.getElementById("link-section");
   section.innerHTML = '<input type="text" value="' + url + '" id="copy-link" readonly style="width:90%;">' +
                       '<button onclick="copyLink()">📋 نسخ الرابط</button>' +
