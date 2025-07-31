@@ -77,8 +77,7 @@ function renderItems(list) {
   let container = document.getElementById("items-list");
   container.innerHTML = "";
 
-  let isCustomer = new URLSearchParams(window.location.search).has("menu") || 
-                   new URLSearchParams(window.location.search).has("order");
+  let isCustomer = new URLSearchParams(window.location.search).has("order");
 
   list.forEach(function(item, index) {
     let div = document.createElement("div");
@@ -202,7 +201,7 @@ function prepareOrder() {
   }
 
   let data = encodeURIComponent(JSON.stringify(items));
-  let longUrl = window.location.origin + window.location.pathname + "?menu=" + data;
+  let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
 
   // اختصار باستخدام clck.ru تلقائيًا
   fetch("https://clck.ru/--?url=" + encodeURIComponent(longUrl))
@@ -264,7 +263,7 @@ function generateCustomerLink() {
   }
 
   let data = encodeURIComponent(JSON.stringify(items));
-  let longUrl = window.location.origin + window.location.pathname + "?menu=" + data;
+  let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
   
   // استخدام fetch لاختصار الرابط
   fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
@@ -287,25 +286,14 @@ function generateCustomerLink() {
 function loadFromURL() {
   loadItemsFromLocal(); // تحميل البيانات المحفوظة أولاً
   let params = new URLSearchParams(window.location.search);
-  if (params.has("menu")) {
+  if (params.has("order")) {
     try {
-      items = JSON.parse(decodeURIComponent(params.get("menu")));
+      items = JSON.parse(decodeURIComponent(params.get("order")));
       document.querySelector(".sidebar").style.display = "none";
       document.getElementById("add-item").style.display = "none";
       document.getElementById("order-section").style.display = "block";
       renderItems(items);
-      console.log("تم تحميل قائمة الأصناف من الرابط:", items);
-    } catch (e) {
-      alert("فشل في قراءة القائمة.");
-    }
-  } else if (params.has("order")) {
-    try {
-      selectedItems = JSON.parse(decodeURIComponent(params.get("order")));
-      document.querySelector(".sidebar").style.display = "none";
-      document.getElementById("add-item").style.display = "none";
-      document.getElementById("order-section").style.display = "block";
-      renderSelected();
-      console.log("تم تحميل الطلب من الرابط:", selectedItems);
+      console.log("تم تحميل قائمة الأصناف من الرابط order:", items);
     } catch (e) {
       alert("فشل في قراءة الطلب.");
     }
@@ -318,7 +306,7 @@ function loadFromURL() {
 
 // هل الرابط يحتوي على طلب من الزبون؟
 const urlParams = new URLSearchParams(window.location.search);
-const isCustomerView = urlParams.has('order') || urlParams.has('menu');
+const isCustomerView = urlParams.has('order');
 
 // ✅ تحميل الطلب من الرابط أو من التخزين المحلي
 window.onload = function () {
@@ -367,7 +355,7 @@ function generateCustomerLink() {
   }
 
   let data = encodeURIComponent(JSON.stringify(items));
-  let longUrl = window.location.origin + window.location.pathname + "?menu=" + data;
+  let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
 
   fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
     .then(response => response.text())
