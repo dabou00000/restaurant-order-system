@@ -281,6 +281,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (customerLinkBtn) {
       customerLinkBtn.addEventListener("click", prepareOrder);
     }
+    // تحميل البيانات المحفوظة وعرضها
+    loadItemsFromLocal();
+    renderItems(items);
   }
 });
 
@@ -313,4 +316,16 @@ function generateCustomerLink() {
       console.error(error);
       alert("❌ فشل توليد الرابط. حاول لاحقًا.");
     });
+}
+
+function sendToWhatsApp() {
+  let number = document.getElementById("whatsNumber").value;
+  if (!number) {
+    alert("الرجاء إدخال رقم الواتساب");
+    return;
+  }
+  
+  let message = "مرحباً! أريد طلبية جديدة.";
+  let whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, '_blank');
 }
