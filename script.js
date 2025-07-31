@@ -187,7 +187,7 @@ function getShortLink(longUrl, callback) {
   fetch("https://api.tinyurl.com/create", {
     method: "POST",
     headers: {
-      "Authorization": "Bearer [ZUVRq4LNYdFMJKuaCeW8D7BJjzdTc58YnuMK8xrtcmNYKBkZYkd1Sd97v9ix]",
+      "Authorization": "Bearer [mtS0zQByCNrHOjyIVNqKqg3BYupmmm39VzzklMpAefShFKJBDVDGy20IvwI4]",
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
@@ -195,21 +195,19 @@ function getShortLink(longUrl, callback) {
       domain: "tinyurl.com"
     })
   })
-  .then(res => res.json())
+  .then(response => response.json())
   .then(data => {
     if (data.data && data.data.tiny_url) {
       callback(data.data.tiny_url);
     } else {
-      alert("فشل اختصار الرابط.");
+      throw new Error("رابط غير متوفر");
     }
   })
-  .catch(err => {
-    console.error(err);
-    alert("خطأ في الاتصال بموقع الاختصار.");
+  .catch(error => {
+    console.error(error);
+    alert("❌ خطأ في الاتصال بموقع الاختصار.");
   });
-
 }
-
 
 function removeItem(index) {
   selectedItems.splice(index, 1);
