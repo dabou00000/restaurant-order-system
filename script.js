@@ -237,10 +237,23 @@ function finalizeCustomerOrder() {
   const encoded = encodeURIComponent(JSON.stringify(data));
   const finalLink = window.location.origin + window.location.pathname + "?final=" + encoded;
 
-  // فتح الرابط مباشرة على واتساب
-  const message = `طلب جديد من ${name}\nالعنوان: ${address}\n${finalLink}`;
-  const whatsappLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
-  window.open(whatsappLink, "_blank");
+  // 🧾 توليد رسالة الطلب بشكل منسق
+  let message = `🧾 *طلب جديد من الزبون:*\n`;
+  message += `👤 الاسم: ${name}\n🏠 العنوان: ${address}\n\n`;
+
+  let total = 0;
+  selectedItems.forEach(item => {
+    total += item.price * item.quantity;
+    const options = item.selectedOptions && item.selectedOptions.length
+      ? ` (${item.selectedOptions.join("، ")})` : '';
+    message += `🍽️ ${item.name}${options} × ${item.quantity} = ${item.price * item.quantity} ل.ل\n`;
+  });
+
+  message += `\n💰 *المجموع الكلي:* ${total.toLocaleString()} ل.ل`;
+  message += `\n📎 *رابط الطلب:* ${finalLink}`;
+
+  const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  window.open(whatsappURL, "_blank");
 }
 
 function removeItem(index) {
