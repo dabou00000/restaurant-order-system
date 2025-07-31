@@ -25,7 +25,7 @@ function loadItemsFromLocal() {
 }
 
 function showAddItem() {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل عرض صفحة الإضافة
+  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   document.getElementById("add-item").style.display = "block";
   document.getElementById("order-section").style.display = "none";
   console.log("تم عرض صفحة الإضافة والبيانات:", items); // للتأكد من العرض
@@ -35,7 +35,7 @@ function showAddItem() {
 function showOrders() {
   document.getElementById("add-item").style.display = "none";
   document.getElementById("order-section").style.display = "block";
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة
+  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   renderItems(items);
   console.log("تم عرض الطلبات والبيانات:", items); // للتأكد من العرض
   console.log("تم الانتهاء من عرض الطلبات"); // للتأكد من الانتهاء
@@ -63,7 +63,7 @@ function addItem() {
 }
 
 function searchItems(query) {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل البحث
+  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   let filtered = items.filter(function(item) {
     return item.name.toLowerCase().includes(query.toLowerCase());
   });
@@ -73,7 +73,7 @@ function searchItems(query) {
 }
 
 function renderItems(list) {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل العرض
+  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   let container = document.getElementById("items-list");
   container.innerHTML = "";
 
@@ -112,7 +112,7 @@ function deleteItem(index) {
 }
 
 function toggleItem(index, checked) {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل التحديد
+  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   let item = items[index];
   if (checked) {
     let selection = {
@@ -132,7 +132,7 @@ function toggleItem(index, checked) {
 }
 
 function renderSelected() {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل العرض
+  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   let container = document.getElementById("selected-items");
   container.innerHTML = "";
 
@@ -164,7 +164,7 @@ function renderSelected() {
 }
 
 function changeQty(index, value) {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل تغيير الكمية
+  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   selectedItems[index].quantity = parseInt(value);
   calculateTotal();
   console.log("تم تغيير الكمية:", selectedItems[index].name, "الكمية الجديدة:", value); // للتأكد من التغيير
@@ -172,7 +172,7 @@ function changeQty(index, value) {
 }
 
 function toggleOption(index, el) {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل تغيير الخيارات
+  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   let val = el.value;
   let item = selectedItems[index];
   if (el.checked) {
@@ -185,7 +185,7 @@ function toggleOption(index, el) {
 }
 
 function calculateTotal() {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل حساب المجموع
+  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   let total = selectedItems.reduce(function(sum, item) {
     return sum + item.price * item.quantity;
   }, 0);
@@ -196,13 +196,13 @@ function calculateTotal() {
 
 function prepareOrder() {
   loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل توليد الطلب
-  if (selectedItems.length === 0) {
-    alert("الرجاء تحديد صنف واحد على الأقل");
+  if (items.length === 0) {
+    alert("أضف أصناف أولاً قبل توليد الرابط.");
     return;
   }
 
-  let data = encodeURIComponent(JSON.stringify(selectedItems));
-  let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
+  let data = encodeURIComponent(JSON.stringify(items));
+  let longUrl = window.location.origin + window.location.pathname + "?menu=" + data;
 
   // اختصار باستخدام clck.ru تلقائيًا
   fetch("https://clck.ru/--?url=" + encodeURIComponent(longUrl))
@@ -225,12 +225,12 @@ function prepareOrder() {
       console.error(error);
       alert("❌ فشل اختصار الرابط. حاول لاحقًا.");
     });
-  console.log("تم توليد الطلب:", selectedItems); // للتأكد من التوليد
+  console.log("تم توليد الطلب:", items); // للتأكد من التوليد
   console.log("تم الانتهاء من توليد الطلب"); // للتأكد من الانتهاء
 }
 
 function removeItem(index) {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل الحذف
+  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   selectedItems.splice(index, 1);
   renderSelected();
   console.log("تم حذف العنصر المحدد والبيانات الجديدة:", selectedItems); // للتأكد من الحذف
@@ -238,7 +238,7 @@ function removeItem(index) {
 }
 
 function printOrder() {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل الطباعة
+  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   let win = window.open('', '', 'width=700,height=500');
   let html = selectedItems.map(function(item) {
     return item.name + " × " + item.quantity + " = " + (item.price * item.quantity).toLocaleString() + " ل.ل";
@@ -264,7 +264,7 @@ function generateCustomerLink() {
   }
 
   let data = encodeURIComponent(JSON.stringify(items));
-  let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
+  let longUrl = window.location.origin + window.location.pathname + "?menu=" + data;
   
   // استخدام fetch لاختصار الرابط
   fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
@@ -294,6 +294,7 @@ function loadFromURL() {
       document.getElementById("add-item").style.display = "none";
       document.getElementById("order-section").style.display = "block";
       renderItems(items);
+      console.log("تم تحميل قائمة الأصناف من الرابط:", items);
     } catch (e) {
       alert("فشل في قراءة القائمة.");
     }
@@ -304,6 +305,7 @@ function loadFromURL() {
       document.getElementById("add-item").style.display = "none";
       document.getElementById("order-section").style.display = "block";
       renderSelected();
+      console.log("تم تحميل الطلب من الرابط:", selectedItems);
     } catch (e) {
       alert("فشل في قراءة الطلب.");
     }
@@ -316,7 +318,7 @@ function loadFromURL() {
 
 // هل الرابط يحتوي على طلب من الزبون؟
 const urlParams = new URLSearchParams(window.location.search);
-const isCustomerView = urlParams.has('order');
+const isCustomerView = urlParams.has('order') || urlParams.has('menu');
 
 // ✅ تحميل الطلب من الرابط أو من التخزين المحلي
 window.onload = function () {
@@ -359,13 +361,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function generateCustomerLink() {
   loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل توليد الرابط
-  if (selectedItems.length === 0) {
-    alert("الرجاء تحديد صنف واحد على الأقل");
+  if (items.length === 0) {
+    alert("أضف أصناف أولاً قبل توليد الرابط.");
     return;
   }
 
-  let data = encodeURIComponent(JSON.stringify(selectedItems));
-  let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
+  let data = encodeURIComponent(JSON.stringify(items));
+  let longUrl = window.location.origin + window.location.pathname + "?menu=" + data;
 
   fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
     .then(response => response.text())
@@ -387,12 +389,12 @@ function generateCustomerLink() {
       console.error(error);
       alert("❌ فشل توليد الرابط. حاول لاحقًا.");
     });
-  console.log("تم توليد رابط الزبون الثاني:", selectedItems); // للتأكد من التوليد
+  console.log("تم توليد رابط الزبون الثاني:", items); // للتأكد من التوليد
   console.log("تم الانتهاء من توليد رابط الزبون الثاني"); // للتأكد من الانتهاء
 }
 
 function sendToWhatsApp() {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل إرسال الواتساب
+  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   let number = document.getElementById("whatsNumber").value;
   if (!number) {
     alert("الرجاء إدخال رقم الواتساب");
