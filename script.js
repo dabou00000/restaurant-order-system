@@ -339,19 +339,22 @@ function loadFromURL() {
 
 window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has("order")) {
-    loadFromURL(); // ✅ الزبون: تحميل من الرابط
+  const isCustomerView = urlParams.has('order');
+
+  if (isCustomerView) {
+    loadFromURL(); // الزبون: تحميل من الرابط
+    // ✅ عرض قسم الطلبات مباشرة
+    document.querySelector(".sidebar").style.display = "none";
+    document.getElementById("add-item").style.display = "none";
+    document.getElementById("order-section").style.display = "block";
   } else {
-    loadItemsFromLocal(); // ✅ المطعم
-    renderItems(items);
+    loadItemsFromLocal(); // المطعم: تحميل من التخزين
+    renderItems(items); // ✅ عرض الأصناف مباشرة
   }
 
-  // ✅ إظهار واجهة الزبون دائمًا
-  document.getElementById("order-section").style.display = "block";
+  console.log("✅ تم تحميل الصفحة والبيانات:", items);
 };
-
-  console.log("تم تحميل الصفحة والبيانات:", items); // للتأكد من التحميل
-  console.log("تم الانتهاء من تحميل الصفحة"); // للتأكد من الانتهاء
+ 
 
 
 // ✅ تنفيذ عند تحميل الصفحة
@@ -397,14 +400,11 @@ function sendToWhatsApp() {
   console.log("تم الانتهاء من إرسال الواتساب"); // للتأكد من الانتهاء
 }
 window.onload = function () {
-  if (isCustomerView) {
-    loadFromURL(); // ✅ تحميل البيانات من الرابط
-    document.querySelector(".sidebar").style.display = "none";
-    document.getElementById("add-item").style.display = "none";
-    document.getElementById("order-section").style.display = "block";
-    document.getElementById("customer-info").style.display = "block";
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("order")) {
+    loadFromURL(); // تحميل الأصناف من الرابط إذا الزبون
   } else {
-    loadItemsFromLocal();
-    renderItems(items);
+    loadItemsFromLocal(); // تحميل الأصناف المحفوظة لصاحب المطعم
+    renderItems(items);   // عرض الأصناف مباشرة
   }
 };
