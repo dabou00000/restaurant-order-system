@@ -177,17 +177,7 @@ function prepareOrder() {
       alert("❌ فشل اختصار الرابط. حاول لاحقًا.");
     });
 }
-function getShortLink(longUrl, callback) {
-  fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
-    .then(response => response.text())
-    .then(shortUrl => {
-      callback(shortUrl);
-    })
-    .catch(error => {
-      console.error(error);
-      alert("❌ فشل اختصار الرابط. جرّب لاحقًا.");
-    });
-}
+
 
 function removeItem(index) {
   selectedItems.splice(index, 1);
