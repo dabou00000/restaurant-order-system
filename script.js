@@ -343,21 +343,18 @@ function loadFromURL() {
 }
 
 window.onload = function () {
-  const urlParams = new URLSearchParams(window.location.search);
-  const isCustomerView = urlParams.has('order');
+  const params = new URLSearchParams(window.location.search);
 
-  if (isCustomerView) {
-    loadFromURL(); // الزبون: تحميل من الرابط
-    // ✅ عرض قسم الطلبات مباشرة
-    document.querySelector(".sidebar").style.display = "none";
-    document.getElementById("add-item").style.display = "none";
-    document.getElementById("order-section").style.display = "block";
+  if (params.has("final")) {
+    loadFinalOrderFromURL(); // 🔁 تحميل الطلب النهائي من الزبون
+  } else if (params.has("order")) {
+    loadFromURL(); // ✅ تحميل الأصناف من رابط مشاركة
   } else {
-    loadItemsFromLocal(); // المطعم: تحميل من التخزين
-    renderItems(items); // ✅ عرض الأصناف مباشرة
+    loadItemsFromLocal(); // 🟢 تحميل البيانات العادية لصاحب المطعم
+    renderItems(items);
   }
 
-  console.log("✅ تم تحميل الصفحة والبيانات:", items);
+  console.log("📦 تم تحميل الصفحة حسب نوع الرابط");
 };
  
 
@@ -412,4 +409,49 @@ window.onload = function () {
     loadItemsFromLocal(); // تحميل الأصناف المحفوظة لصاحب المطعم
     renderItems(items);   // عرض الأصناف مباشرة
   }
+  // ... الكود الموجود فوق كله
+
+function finalizeCustomerOrder() {
+  const name = document.getElementById("customer-name").value || "";
+  const address = document.getElementById("customer-address").value || "";
+
+  const data = {
+    order: selectedItems,
+    name: name,
+    address: address
+  };
+
+  const encoded = encodeURIComponent(JSON.stringify(data));
+  const finalLink = window.location.origin + window.location.pathname + "?final=" + encoded;
+
+  // عرض الرابط للزبون حتى ينسخه أو يرسله
+  document.getElementById("link-section").innerHTML = `
+    <div>
+      <input type="text" value="${finalLink}" readonly style="width:90%; padding:10px;">
+      <a href="${finalLink}" target="_blank">🌐 فتح الطلبية</a>
+      <a href="https://wa.me/?text=${encodeURIComponent("طلب جديد:\n" + finalLink)}" target="_blank">📩 إرسال عبر واتساب</a>
+    </div>
+  `;
+  function loadFinalOrderFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("final")) {
+    try {
+      const data = JSON.parse(decodeURIComponent(params.get("final")));
+      selectedItems = data.order || [];
+
+      document.getElementById("customer-info").style.display = "block";
+      document.getElementById("customer-name").value = data.name || "";
+      document.getElementById("customer-address").value = data.address || "";
+
+      document.getElementById("add-item").style.display = "none";
+      document.getElementById("order-section").style.display = "block";
+      document.querySelector(".sidebar").style.display = "none";
+
+      renderSelected();
+    } catch (e) {
+      alert("❌ فشل في قراءة رابط الطلب.");
+    }
+  }
+}
+}
 };
