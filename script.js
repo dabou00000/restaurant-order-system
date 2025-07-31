@@ -183,7 +183,13 @@ function removeItem(index) {
   selectedItems.splice(index, 1);
   renderSelected();
 }
-document.getElementById("generate-customer-link").addEventListener("click", prepareOrder);
+document.addEventListener("DOMContentLoaded", function () {
+  const customerLinkBtn = document.getElementById("generate-customer-link");
+  if (customerLinkBtn) {
+    customerLinkBtn.addEventListener("click", prepareOrder);
+  }
+});
+
 function printOrder() {
   let win = window.open('', '', 'width=700,height=500');
   let html = selectedItems.map(function(item) {
