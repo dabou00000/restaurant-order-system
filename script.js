@@ -268,32 +268,40 @@ function printOrder() {
   console.log("تم طباعة الطلب:", selectedItems); // للتأكد من الطباعة
   console.log("تم الانتهاء من طباعة الطلب"); // للتأكد من الانتهاء
 }
-
 function generateCustomerLink() {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل توليد الرابط
+  loadItemsFromLocal(); // تحميل الأصناف من التخزين المحلي
 
   if (items.length === 0) {
     alert("أضف أصناف أولاً قبل توليد الرابط.");
     return;
   }
 
-  let data = encodeURIComponent(JSON.stringify(items));
-  let longUrl = window.location.origin + window.location.pathname + "?menu=" + data;
+  // 🔒 تحويل الأصناف إلى بيانات URL
+  const encodedItems = encodeURIComponent(JSON.stringify(items));
+  const longUrl = window.location.origin + window.location.pathname + "?order=" + encodedItems;
 
-  // استخدام fetch لاختصار الرابط
-  fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
+  // 📦 استخدم clck.ru لاختصار الرابط (هو الأفضل عبر الموبايل)
+  fetch("https://clck.ru/--?url=" + encodeURIComponent(longUrl))
     .then(response => response.text())
     .then(shortUrl => {
-      let section = document.getElementById("link-section");
-      section.innerHTML = 
-        '<input type="text" value="' + shortUrl + '" readonly style="width:90%;">' +
-        '<a href="' + shortUrl + '" target="_blank">🌐 فتح الرابط</a>' +
-        '<a href="https://wa.me/?text=' + encodeURIComponent("طلبية جديدة:\n" + shortUrl) + '" target="_blank">📲 إرسال عبر واتساب</a>';
+      const section = document.getElementById("link-section");
+      section.innerHTML = `
+        <input type="text" value="${shortUrl}" readonly style="width: 90%; padding: 8px;">
+        <div style="margin-top:10px;">
+          <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a>
+        </div>
+        <div style="margin-top:10px;">
+          <a href="https://wa.me/?text=${encodeURIComponent(shortUrl)}" target="_blank">
+            📩 إرسال عبر واتساب
+          </a>
+        </div>
+      `;
     })
-    .catch(error => {
-      console.error(error);
-      alert("❌ فشل توليد الرابط. حاول لاحقًا.");
+    .catch(err => {
+      console.error(err);
+      alert("فشل في توليد الرابط المختصر. حاول لاحقًا.");
     });
+
 
   console.log("تم توليد رابط الزبون (menu):", items); // للتأكد من التوليد
   console.log("تم الانتهاء من توليد رابط الزبون");
