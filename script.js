@@ -208,43 +208,23 @@ function calculateTotal() {
 }
 
 function prepareOrder() {
-  const name = document.getElementById("customer-name").value;
-  const address = document.getElementById("customer-address").value;
-
-  if (!name || !address) {
-    alert("يرجى إدخال الاسم والعنوان.");
-    return;
-  }
-
-  if (selectedItems.length === 0) {
-    alert("لم يتم تحديد أي صنف.");
-    return;
-  }
-
-  // حساب المجموع وتجهيز النص
-  let message = "🧾 *طلبية جديدة من الزبون*\n";
-  message += `👤 الاسم: ${name}\n`;
-  message += `📍 العنوان: ${address}\n\n`;
-
-  let total = 0;
-  selectedItems.forEach((item) => {
-    message += `🍽 ${item.name} × ${item.quantity} = ${item.price * item.quantity} ل.ل\n`;
-    if (item.selectedOptions && item.selectedOptions.length > 0) {
-      message += `↪️ خصائص: ${item.selectedOptions.join(", ")}\n`;
-    }
-    total += item.price * item.quantity;
-  });
-
-  message += `\n💰 *المجموع الكلي:* ${total.toLocaleString()} ل.ل`;
-
-  // تحقق إذا المستخدم زبون (فتح من رابط يحتوي على order)
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has("order")) {
-    const whatsappNumber = "96171783701"; // ← عدل هذا الرقم إلى رقم المطعم
-    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
+  const isCustomer = urlParams.has("order") || urlParams.has("final");
+
+  if (isCustomer) {
+    // ✅ إذا الزبون عم يستخدم الرابط
+    const name = document.getElementById("customer-name").value.trim();
+    const address = document.getElementById("customer-address").value.trim();
+
+    if (!name || !address) {
+      alert("يرجى إدخال الاسم والعنوان.");
+      return;
+    }
+
+    finalizeCustomerOrder(); // ⬅️ توليد رابط نهائي فيه الطلب + معلومات الزبون
   } else {
-    alert("✔ الطلب جاهز ولكن لم يتم إرساله عبر واتساب (هذه الواجهة للمطعم).");
+    // 🟢 إذا صاحب المطعم عم يشوف الطلبية
+    printOrder(); // أو أي وظيفة ثانية متوقعة من صاحب المطعم
   }
 }
 function removeItem(index) {
