@@ -156,9 +156,10 @@ function prepareOrder() {
   let url = window.location.origin + window.location.pathname + "?order=" + data;
 
   let section = document.getElementById("link-section");
-  section.innerHTML = '<input type="text" value="' + url + '" id="copy-link" readonly style="width:90%;">' +
-                      '<button onclick="copyLink()">📋 نسخ الرابط</button>' +
-                      '<a href="' + url + '" target="_blank">🔗 فتح الرابط</a>';
+ section.innerHTML = '<a href="https://wa.me/?text=' + encodeURIComponent(url) + '" target="_blank">' +
+                    '<button style="background: #25D366;">📲 إرسال إلى واتساب</button>' +
+                    '</a>' +
+                    '<a href="' + url + '" target="_blank" style="margin-right:10px;">🔗 فتح الرابط</a>';
 }
 
 function copyLink() {
