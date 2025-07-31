@@ -36,6 +36,7 @@
 <div style="margin-top: 15px;">
   <button onclick="finalizeCustomerOrder()">✅ إرسال الطلب</button>
 </div>
+<button id="send-order-btn" style="display:none;" onclick="finalizeCustomerOrder()">إرسال الطلب ✅</button>
       <button onclick="prepareOrder()">📦 تحضير الطلبية</button>
       <button onclick="printOrder()">🖨️ طباعة</button>
       <div id="link-section" style="margin-top: 10px;"></div>
@@ -46,11 +47,21 @@
   <script>
     // إظهار الحقول فقط إذا تم فتح رابط يحتوي طلب
     window.onload = function () {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('order')) {
-        document.getElementById("customer-info").style.display = "block";
-      }
-    };
+  const urlParams = new URLSearchParams(window.location.search);
+
+  if (urlParams.has("order")) {
+    document.getElementById("customer-info").style.display = "block";
+    document.getElementById("send-order-btn").style.display = "inline-block";
+  }
+
+  if (urlParams.has("final")) {
+    loadFinalOrderFromURL(); // حمل الطلب النهائي
+  } else if (urlParams.has("order")) {
+    loadFromURL(); // حمل الأصناف من order
+  } else {
+    loadItemsFromLocal(); // صفحة المطعم
+  }
+};
   </script>
 </body>
 </html>

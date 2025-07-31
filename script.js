@@ -212,21 +212,37 @@ function prepareOrder() {
   const isCustomer = urlParams.has("order") || urlParams.has("final");
 
   if (isCustomer) {
-    // ✅ إذا الزبون عم يستخدم الرابط
-    const name = document.getElementById("customer-name").value.trim();
-    const address = document.getElementById("customer-address").value.trim();
-
-    if (!name || !address) {
-      alert("يرجى إدخال الاسم والعنوان.");
-      return;
-    }
-
-    finalizeCustomerOrder(); // ⬅️ توليد رابط نهائي فيه الطلب + معلومات الزبون
-  } else {
-    // 🟢 إذا صاحب المطعم عم يشوف الطلبية
-    printOrder(); // أو أي وظيفة ثانية متوقعة من صاحب المطعم
+    // الزبون لا يضغط هذا الزر، بل "إرسال الطلب"
+    return;
   }
+
+  // المطعم فقط يحضّر الرابط
+  generateCustomerLink();
 }
+function finalizeCustomerOrder() {
+  const name = document.getElementById("customer-name").value.trim();
+  const address = document.getElementById("customer-address").value.trim();
+
+  if (!name || !address) {
+    alert("يرجى إدخال الاسم والعنوان.");
+    return;
+  }
+
+  const data = {
+    order: selectedItems,
+    name: name,
+    address: address
+  };
+
+  const encoded = encodeURIComponent(JSON.stringify(data));
+  const finalLink = window.location.origin + window.location.pathname + "?final=" + encoded;
+
+  // فتح الرابط مباشرة على واتساب
+  const message = `طلب جديد من ${name}\nالعنوان: ${address}\n${finalLink}`;
+  const whatsappLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  window.open(whatsappLink, "_blank");
+}
+
 function removeItem(index) {
   // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   selectedItems.splice(index, 1);
