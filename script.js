@@ -187,28 +187,27 @@ function getShortLink(longUrl, callback) {
   fetch("https://api.tinyurl.com/create", {
     method: "POST",
     headers: {
-      "accept": "application/json",
-      "Content-Type": "application/json",
-      // مفتاح API مؤقت من TinyURL للنسخ السريع (يمكن تغييره لاحقًا)
-      "Authorization": "Bearer Aal77vRDnhxHb6uY3HkG566qfKRPKd5oWboycUHSPuEjqTT6uUZbsEyRzpkk"
+      "Authorization": "ZUVRq4LNYdFMJKuaCeW8D7BJjzdTc58YnuMK8xrtcmNYKBkZYkd1Sd97v9ix",
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       url: longUrl,
       domain: "tinyurl.com"
     })
   })
-  .then(function(response) { return response.json(); })
-  .then(function(data) {
+  .then(res => res.json())
+  .then(data => {
     if (data.data && data.data.tiny_url) {
       callback(data.data.tiny_url);
     } else {
       alert("فشل اختصار الرابط.");
     }
   })
-  .catch(function(error) {
-    console.error("Error:", error);
+  .catch(err => {
+    console.error(err);
     alert("خطأ في الاتصال بموقع الاختصار.");
   });
+
 }
 
 
