@@ -1,4 +1,8 @@
 let items = [];
+let saved = localStorage.getItem("menuItems");
+if (saved) {
+  items = JSON.parse(saved);
+}
 let selectedItems = [];
 
 // تحميل البيانات المحفوظة عند بداية التطبيق
@@ -49,6 +53,7 @@ function addItem() {
 
   if (name && price) {
     items.push({ name: name, price: price, options: options });
+    localStorage.setItem("menuItems", JSON.stringify(items));
     saveItemsToLocal(); // حفظ البيانات فوراً
     alert("تمت إضافة الصنف!");
     document.getElementById("item-name").value = "";
@@ -257,14 +262,15 @@ function printOrder() {
 
 function generateCustomerLink() {
   loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل توليد الرابط
+
   if (items.length === 0) {
     alert("أضف أصناف أولاً قبل توليد الرابط.");
     return;
   }
 
   let data = encodeURIComponent(JSON.stringify(items));
-  let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
-  
+  let longUrl = window.location.origin + window.location.pathname + "?menu=" + data;
+
   // استخدام fetch لاختصار الرابط
   fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
     .then(response => response.text())
@@ -279,8 +285,9 @@ function generateCustomerLink() {
       console.error(error);
       alert("❌ فشل توليد الرابط. حاول لاحقًا.");
     });
-  console.log("تم توليد رابط الزبون:", items); // للتأكد من التوليد
-  console.log("تم الانتهاء من توليد رابط الزبون"); // للتأكد من الانتهاء
+
+  console.log("تم توليد رابط الزبون (menu):", items); // للتأكد من التوليد
+  console.log("تم الانتهاء من توليد رابط الزبون");
 }
 
 function loadFromURL() {
@@ -312,12 +319,23 @@ const isCustomerView = urlParams.has('order');
 
 // ✅ تحميل الطلب من الرابط أو من التخزين المحلي
 window.onload = function () {
-  if (isCustomerView) {
-    loadFromURL(); // الزبون: تحميل الطلب من الرابط
+  const urlParams = new URLSearchParams(window.location.search);
+
+  if (urlParams.has("menu")) {
+    try {
+      items = JSON.parse(decodeURIComponent(urlParams.get("menu")));
+      renderItems(items);  // عرضها للزبون
+      document.querySelector(".sidebar").style.display = "none"; // إخفاء القائمة الجانبية
+      document.getElementById("add-item").style.display = "none";
+      document.getElementById("order-section").style.display = "block";
+    } catch (e) {
+      alert("فشل في قراءة القائمة من الرابط.");
+    }
   } else {
-    loadItemsFromLocal(); // المطعم: تحميل البيانات المحفوظة
-    renderItems(items); // عرض البيانات المحملة
+    loadItemsFromLocal();  // المطعم
+    renderItems(items);
   }
+
   console.log("تم تحميل الصفحة والبيانات:", items); // للتأكد من التحميل
   console.log("تم الانتهاء من تحميل الصفحة"); // للتأكد من الانتهاء
 };
