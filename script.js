@@ -153,36 +153,26 @@ function prepareOrder() {
   }
 
   let data = encodeURIComponent(JSON.stringify(selectedItems));
-let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
-getShortLink(longUrl, function(shortUrl) {
-  let section = document.getElementById("link-section");
-section.innerHTML = `
-  <input type="text" value="${shortUrl}" readonly style="width:90%; margin-bottom:10px;">
-  <br>
-  <a href="${shortUrl}" target="_blank" style="display:inline-block; margin:8px 0; color:#333; text-decoration:none;">🌐 فتح الرابط</a>
-  <br>
-  <button onclick="sendWhatsApp('${encoded}')" style="background-color:#25D366; color:white; padding:10px 20px; border:none; border-radius:8px; font-size:16px; cursor:pointer; margin-top:10px; display:inline-flex; align-items:center;">
-    <img src="https://img.icons8.com/ios-filled/20/ffffff/whatsapp.png" style="margin-left:8px;"/> إرسال عبر واتساب
-  </button>
-`;});
+  let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
 
- let section = document.getElementById("link-section");
-let encoded = encodeURIComponent(shortUrl);
-section.innerHTML = `
-  <div style="margin-top: 10px;">
-    <input type="text" value="${shortUrl}" readonly style="width: 90%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
-  </div>
-  <div style="margin-top: 10px;">
-    <a href="${shortUrl}" target="_blank" style="color: #8B0000; text-decoration: none; font-weight: bold;">🌐 فتح الرابط</a>
-  </div>
-  <div style="margin-top: 10px;">
-    <a href="https://wa.me/?text=${encoded}" target="_blank" style="background-color: #25D366; color: white; padding: 10px 15px; border-radius: 6px; font-weight: bold; text-decoration: none; display: inline-block;">📩 إرسال إلى واتساب</a>
-  </div>
-`;
-
-
+  getShortLink(longUrl, function(shortUrl) {
+    let encoded = encodeURIComponent(shortUrl);
+    let section = document.getElementById("link-section");
+    section.innerHTML = `
+      <div style="margin-top: 10px;">
+        <input type="text" value="${shortUrl}" readonly style="width: 90%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+      </div>
+      <div style="margin-top: 10px;">
+        <a href="${shortUrl}" target="_blank" style="color: #8B0000; text-decoration: none; font-weight: bold;">🌐 فتح الرابط</a>
+      </div>
+      <div style="margin-top: 10px;">
+        <a href="https://wa.me/?text=${encoded}" target="_blank" style="background-color: #25D366; color: white; padding: 10px 15px; border-radius: 6px; font-weight: bold; text-decoration: none; display: inline-block;">
+          <img src="https://img.icons8.com/ios-filled/20/ffffff/whatsapp.png" style="margin-left:8px; vertical-align:middle;" /> إرسال عبر واتساب
+        </a>
+      </div>
+    `;
+  });
 }
-
 function getShortLink(longUrl, callback) {
   fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
     .then(response => response.text())
