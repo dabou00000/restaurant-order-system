@@ -1,3 +1,4 @@
+
 let items = [];
 let selectedItems = [];
 
@@ -248,24 +249,40 @@ function loadFromURL() {
   }
 }
 
-window.onload = loadFromURL;
 
-document.addEventListener("DOMContentLoaded", function () {
-  const customerLinkBtn = document.getElementById("generate-customer-link");
-  if (customerLinkBtn) {
-    customerLinkBtn.addEventListener("click", prepareOrder);
-    window.onload = function () {
-  const urlParams = new URLSearchParams(window.location.search);
+// هل الرابط يحتوي على طلب من الزبون؟
+const urlParams = new URLSearchParams(window.location.search);
+const isCustomerView = urlParams.has('order');
 
-  // إذا كان الرابط يحتوي على طلب من الزبون
-  if (urlParams.has('order')) {
-    document.getElementById("add-item").style.display = "none"; // ✅ إخفاء قسم إضافة الأصناف
-    document.getElementById("order-section").style.display = "block"; // ✅ عرض قائمة الطلبات
-    document.getElementById("customer-info").style.display = "block"; // ✅ عرض حقول اسم الزبون وعنوانه
+// ✅ تحميل الطلب من الرابط أو من التخزين المحلي
+window.onload = function () {
+  if (isCustomerView) {
+    loadFromURL(); // الزبون: تحميل الطلب من الرابط
   } else {
-    loadItemsFromLocal(); // صاحب المطعم: تحميل الأصناف
+    loadItemsFromLocal(); // المطعم: تحميل الأصناف من التخزين المحلي
   }
 };
+
+// ✅ تنفيذ عند تحميل الصفحة
+document.addEventListener("DOMContentLoaded", function () {
+  const addItemSection = document.getElementById("add-item");
+  const addItemBtn = document.querySelector("button[onclick='showAddItem()']");
+  const customerLinkBtn = document.getElementById("generate-customer-link");
+
+  if (isCustomerView) {
+    // ✅ الزبون: إخفاء الأدوات الخاصة بالمطعم
+    if (addItemSection) addItemSection.style.display = "none";
+    if (addItemBtn) addItemBtn.style.display = "none";
+    if (customerLinkBtn) customerLinkBtn.style.display = "none";
+
+    // ✅ عرض واجهة الطلب والحقول
+    document.getElementById("order-section").style.display = "block";
+    document.getElementById("customer-info").style.display = "block";
+  } else {
+    // صاحب المطعم: تفعيل زر توليد الرابط
+    if (customerLinkBtn) {
+      customerLinkBtn.addEventListener("click", prepareOrder);
+    }
   }
 });
 function generateCustomerLink() {
