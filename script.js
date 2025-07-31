@@ -254,6 +254,18 @@ document.addEventListener("DOMContentLoaded", function () {
   const customerLinkBtn = document.getElementById("generate-customer-link");
   if (customerLinkBtn) {
     customerLinkBtn.addEventListener("click", prepareOrder);
+    window.onload = function () {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  // إذا كان الرابط يحتوي على طلب من الزبون
+  if (urlParams.has('order')) {
+    document.getElementById("add-item").style.display = "none"; // ✅ إخفاء قسم إضافة الأصناف
+    document.getElementById("order-section").style.display = "block"; // ✅ عرض قائمة الطلبات
+    document.getElementById("customer-info").style.display = "block"; // ✅ عرض حقول اسم الزبون وعنوانه
+  } else {
+    loadItemsFromLocal(); // صاحب المطعم: تحميل الأصناف
+  }
+};
   }
 });
 function generateCustomerLink() {
