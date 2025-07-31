@@ -319,8 +319,10 @@ function loadFromURL() {
       document.getElementById("add-item").style.display = "none";
       document.getElementById("order-section").style.display = "block";
 
-      // ✅ الحل هنا: عرض العناصر مباشرة عند فتح الرابط
-      renderItems(items);
+      // ✅ تأجيل عرض العناصر حتى يتم تحميل كل عناصر الصفحة
+    
+        renderItems(items);
+     
 
       console.log("تم تحميل قائمة الأصناف من الرابط order:", items);
     } catch (e) {
@@ -335,28 +337,22 @@ function loadFromURL() {
   console.log("تم الانتهاء من تحميل URL");
 }
 
-// ✅ تحميل الطلب من الرابط أو من التخزين المحلي
 window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search);
-
-  if (urlParams.has("menu")) {
-    try {
-      items = JSON.parse(decodeURIComponent(urlParams.get("menu")));
-      renderItems(items);  // عرضها للزبون
-      document.querySelector(".sidebar").style.display = "none"; // إخفاء القائمة الجانبية
-      document.getElementById("add-item").style.display = "none";
-      document.getElementById("order-section").style.display = "block";
-    } catch (e) {
-      alert("فشل في قراءة القائمة من الرابط.");
-    }
+  if (urlParams.has("order")) {
+    loadFromURL(); // ✅ الزبون: تحميل من الرابط
   } else {
-    loadItemsFromLocal();  // المطعم
+    loadItemsFromLocal(); // ✅ المطعم
     renderItems(items);
   }
 
+  // ✅ إظهار واجهة الزبون دائمًا
+  document.getElementById("order-section").style.display = "block";
+};
+
   console.log("تم تحميل الصفحة والبيانات:", items); // للتأكد من التحميل
   console.log("تم الانتهاء من تحميل الصفحة"); // للتأكد من الانتهاء
-};
+
 
 // ✅ تنفيذ عند تحميل الصفحة
 document.addEventListener("DOMContentLoaded", function () {
