@@ -187,7 +187,7 @@ function getShortLink(longUrl, callback) {
   fetch("https://api.tinyurl.com/create", {
     method: "POST",
     headers: {
-      "Authorization": "ZUVRq4LNYdFMJKuaCeW8D7BJjzdTc58YnuMK8xrtcmNYKBkZYkd1Sd97v9ix",
+      "Authorization": "Bearer [ZUVRq4LNYdFMJKuaCeW8D7BJjzdTc58YnuMK8xrtcmNYKBkZYkd1Sd97v9ix]",
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
