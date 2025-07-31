@@ -162,11 +162,17 @@ getShortLink(longUrl, function(shortUrl) {
     '<a href="https://wa.me/?text=' + encodeURIComponent("طلبية جديدة:\n" + shortUrl) + '" target="_blank">📲 إرسال عبر واتساب</a>';
 });
 
-  let section = document.getElementById("link-section");
- section.innerHTML = '<a href="https://wa.me/?text=' + encodeURIComponent(url) + '" target="_blank">' +
-                    '<button style="background: #25D366;">📲 إرسال إلى واتساب</button>' +
-                    '</a>' +
-                    '<a href="' + url + '" target="_blank" style="margin-right:10px;">🔗 فتح الرابط</a>';
+ let section = document.getElementById("link-section");
+let encoded = encodeURIComponent(shortUrl);
+section.innerHTML = `
+  <input type="text" value="${shortUrl}" readonly style="width:90%; margin-bottom:10px;">
+  <br>
+  <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a>
+  <br>
+  <button onclick="sendWhatsApp('${encoded}')">📩 إرسال إلى واتساب</button>
+`;
+
+
 }
 
 function getShortLink(longUrl, callback) {
@@ -236,7 +242,7 @@ getShortLink(longUrl, function(shortUrl) {
 });
   let section = document.getElementById("link-section");
   section.innerHTML = '<input type="text" value="' + url + '" id="copy-link" readonly style="width:90%;">' +
-                      '<button onclick="copyLink()">📋 نسخ الرابط</button>' +
+                      
                       '<a href="' + url + '" target="_blank">🔗 فتح الرابط</a>';
 }
 
