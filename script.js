@@ -208,40 +208,45 @@ function calculateTotal() {
 }
 
 function prepareOrder() {
-  loadItemsFromLocal(); // تحميل البيانات المحفوظة قبل توليد الطلب
-  if (items.length === 0) {
-    alert("أضف أصناف أولاً قبل توليد الرابط.");
+  const name = document.getElementById("customer-name").value;
+  const address = document.getElementById("customer-address").value;
+
+  if (!name || !address) {
+    alert("يرجى إدخال الاسم والعنوان.");
     return;
   }
 
-  let data = encodeURIComponent(JSON.stringify(items));
-  let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
+  if (selectedItems.length === 0) {
+    alert("لم يتم تحديد أي صنف.");
+    return;
+  }
 
-  // اختصار باستخدام clck.ru تلقائيًا
-  fetch("https://clck.ru/--?url=" + encodeURIComponent(longUrl))
-    .then(response => response.text())
-    .then(shortUrl => {
-      let section = document.getElementById("link-section");
-      section.innerHTML = `
-        <div style="margin-top: 10px;">
-          <input type="text" value="${shortUrl}" readonly style="width: 90%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
-        </div>
-        <div style="margin-top: 10px;">
-          <a href="${shortUrl}" target="_blank" style="color: #0066cc; font-weight: bold; text-decoration: none;">🌐 فتح الرابط</a>
-        </div>
-        <div style="margin-top: 10px;">
-          <a href="https://wa.me/?text=${encodeURIComponent(shortUrl)}" target="_blank" style="background-color: #25D366; color: white; padding: 10px 15px; border-radius: 6px; font-weight: bold; text-decoration: none;">📩 إرسال إلى واتساب</a>
-        </div>
-      `;
-    })
-    .catch(error => {
-      console.error(error);
-      alert("❌ فشل اختصار الرابط. حاول لاحقًا.");
-    });
-  console.log("تم توليد الطلب:", items); // للتأكد من التوليد
-  console.log("تم الانتهاء من توليد الطلب"); // للتأكد من الانتهاء
+  // حساب المجموع وتجهيز النص
+  let message = "🧾 *طلبية جديدة من الزبون*\n";
+  message += `👤 الاسم: ${name}\n`;
+  message += `📍 العنوان: ${address}\n\n`;
+
+  let total = 0;
+  selectedItems.forEach((item) => {
+    message += `🍽 ${item.name} × ${item.quantity} = ${item.price * item.quantity} ل.ل\n`;
+    if (item.selectedOptions && item.selectedOptions.length > 0) {
+      message += `↪️ خصائص: ${item.selectedOptions.join(", ")}\n`;
+    }
+    total += item.price * item.quantity;
+  });
+
+  message += `\n💰 *المجموع الكلي:* ${total.toLocaleString()} ل.ل`;
+
+  // تحقق إذا المستخدم زبون (فتح من رابط يحتوي على order)
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has("order")) {
+    const whatsappNumber = "96171783701"; // ← عدل هذا الرقم إلى رقم المطعم
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+  } else {
+    alert("✔ الطلب جاهز ولكن لم يتم إرساله عبر واتساب (هذه الواجهة للمطعم).");
+  }
 }
-
 function removeItem(index) {
   // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   selectedItems.splice(index, 1);
