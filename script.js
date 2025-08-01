@@ -72,6 +72,7 @@ function addItem() {
     // تحميل وعرض البيانات المحفوظة
     loadItemsFromLocal();
     renderItems(items);
+    autoGenerateCustomerLink();
     console.log("تم إضافة الصنف والبيانات الجديدة:", items); // للتأكد من الإضافة
     console.log("تم الانتهاء من إضافة الصنف"); // للتأكد من الانتهاء
   }
@@ -284,11 +285,10 @@ function printOrder() {
   console.log("تم طباعة الطلب:", selectedItems); // للتأكد من الطباعة
   console.log("تم الانتهاء من طباعة الطلب"); // للتأكد من الانتهاء
 }
-function autoGenerateCustomerLink() {
-  if (items.length === 0) {
-    document.getElementById("link-section").innerHTML = "<p>🔗 لا يوجد أصناف بعد.</p>";
-    return;
-  }
+if (!items || !Array.isArray(items)) {
+  document.getElementById("link-section").innerHTML = "<p>❌ لا يمكن توليد الرابط حاليًا.</p>";
+  return;
+}
 
   const data = encodeURIComponent(JSON.stringify(items));
   const longUrl = window.location.origin + window.location.pathname + "?order=" + data;
@@ -311,7 +311,7 @@ function autoGenerateCustomerLink() {
       console.error("❌ فشل في اختصار الرابط:", err);
       document.getElementById("link-section").innerHTML = `<p>❌ لم يتم توليد الرابط</p>`;
     });
-}
+
 function loadFinalOrderFromURL() {
   const params = new URLSearchParams(window.location.search);
   if (params.has("final")) {
@@ -403,12 +403,24 @@ function sendToWhatsApp() {
 }
 window.onload = function () {
   const params = new URLSearchParams(window.location.search);
-  if (params.has("order")) {
-    loadFromURL(); // تحميل الأصناف من الرابط إذا الزبون
+
+  if (params.has("final")) {
+    loadFinalOrderFromURL();
+  } else if (params.has("order")) {
+    loadFromURL();
   } else {
-    loadItemsFromLocal(); // تحميل الأصناف المحفوظة لصاحب المطعم
-    renderItems(items);   // عرض الأصناف مباشرة
+    loadItemsFromLocal();
+    renderItems(items);
+
+    // ✅ استدعِ توليد الرابط تلقائيًا
+    if (items.length > 0) {
+      autoGenerateCustomerLink();
+    }
   }
+
+  console.log("📦 تم تحميل الصفحة حسب نوع الرابط");
+};
+  
   // ... الكود الموجود فوق كله
 
 function finalizeCustomerOrder() {
@@ -458,7 +470,7 @@ function finalizeCustomerOrder() {
   }
 }
 }
-};
+
 function sendFinalOrder() {
   const name = document.getElementById("customer-name").value.trim();
   const address = document.getElementById("customer-address").value.trim();
