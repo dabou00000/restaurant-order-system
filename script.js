@@ -64,6 +64,7 @@ function addItem() {
     items.push({ name: name, price: price, options: options });
     localStorage.setItem("menuItems", JSON.stringify(items));
     saveItemsToLocal(); // حفظ البيانات فوراً
+    autoGenerateCustomerLink();
     alert("تمت إضافة الصنف!");
     document.getElementById("item-name").value = "";
     document.getElementById("item-price").value = "";
@@ -123,6 +124,7 @@ function deleteItem(index) {
     console.log("تم الانتهاء من حذف الصنف"); // للتأكد من الانتهاء
   }
 }
+    autoGenerateCustomerLink();
 
 function toggleItem(index, checked) {
   // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
@@ -282,34 +284,34 @@ function printOrder() {
   console.log("تم طباعة الطلب:", selectedItems); // للتأكد من الطباعة
   console.log("تم الانتهاء من طباعة الطلب"); // للتأكد من الانتهاء
 }
-function generateCustomerLink() {
+function autoGenerateCustomerLink() {
   if (items.length === 0) {
-    alert("❌ أضف أصناف أولاً قبل توليد الرابط.");
+    document.getElementById("link-section").innerHTML = "<p>🔗 لا يوجد أصناف بعد.</p>";
     return;
   }
 
-  let data = encodeURIComponent(JSON.stringify(items));
-  let longUrl = window.location.origin + window.location.pathname + "?order=" + data;
+  const data = encodeURIComponent(JSON.stringify(items));
+  const longUrl = window.location.origin + window.location.pathname + "?order=" + data;
 
-  fetch("https://is.gd/create.php?format=simple&url=" + encodeURIComponent(longUrl))
-    .then(response => response.text())
+  fetch("https://clck.ru/--?url=" + encodeURIComponent(longUrl))
+    .then(res => res.text())
     .then(shortUrl => {
-      let section = document.getElementById("link-section");
-      section.innerHTML = `
-        <input type="text" value="${shortUrl}" readonly style="width:90%; padding: 8px;">
-        <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a>
-        <a href="https://wa.me/?text=${encodeURIComponent("رابط قائمة الطلب:\n" + shortUrl)}" target="_blank">📲 إرسال عبر واتساب</a>
+      document.getElementById("link-section").innerHTML = `
+        <div style="margin-top: 10px;">
+          <input type="text" value="${shortUrl}" readonly style="width: 90%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+          <div style="margin-top: 8px;">
+            <a href="${shortUrl}" target="_blank" style="color: #0066cc; font-weight: bold;">🌐 فتح الرابط</a>
+            &nbsp; | &nbsp;
+            <a href="https://wa.me/?text=${encodeURIComponent("طلبية جديدة:\n" + shortUrl)}" target="_blank" style="background-color: #25D366; color: white; padding: 6px 10px; border-radius: 6px; font-weight: bold;">📲 واتساب</a>
+          </div>
+        </div>
       `;
     })
-    .catch(error => {
-      alert("❌ فشل في توليد الرابط.");
+    .catch(err => {
+      console.error("❌ فشل في اختصار الرابط:", err);
+      document.getElementById("link-section").innerHTML = `<p>❌ لم يتم توليد الرابط</p>`;
     });
-
-
-  console.log("تم توليد رابط الزبون (menu):", items); // للتأكد من التوليد
-  console.log("تم الانتهاء من توليد رابط الزبون");
 }
-
 function loadFinalOrderFromURL() {
   const params = new URLSearchParams(window.location.search);
   if (params.has("final")) {
@@ -348,6 +350,9 @@ window.onload = function () {
     // صاحب المطعم
     loadItemsFromLocal();
     renderItems(items);
+    if (!isCustomerView && items.length > 0) {
+  autoGenerateCustomerLink();
+}
   }
 
   console.log("📦 تم تحميل الصفحة حسب نوع الرابط");
