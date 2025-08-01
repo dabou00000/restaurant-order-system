@@ -352,11 +352,17 @@ function sendCustomerOrder() {
   message += `شكراً لطلبكم من CAVE RESTAURANT! 🎉\n`;
   message += `سيتم التواصل معكم قريباً 📞`;
   
-  // رقم الواتساب - يمكن تغييره حسب الحاجة
-  const phoneNumber = "96171783701"; // استبدل برقم صاحب المطعم الفعلي
+  // أرقام الواتساب - يمكن تغييرها حسب الحاجة
+  const phoneNumbers = [
+    "96171783701", // الرقم الأول
+    "96176543210"  // الرقم الثاني
+  ];
   
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-  window.open(whatsappUrl, '_blank');
+  // إرسال الرسالة إلى جميع الأرقام
+  phoneNumbers.forEach(phoneNumber => {
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  });
 }
 
 // تحديث خصائص الصنف المحدد
