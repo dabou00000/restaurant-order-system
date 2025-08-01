@@ -25,7 +25,7 @@ if (isCustomerView) {
 }
   console.log("تم التأكد من الحفظ والتحميل:", items); // للتأكد من الحفظ والتحميل
 }
-autoGenerateCustomerLink();
+GenerateCustomerLink();
 function loadItemsFromLocal() {
   let saved = localStorage.getItem("menuItems");
   if (saved) {
@@ -47,7 +47,7 @@ function showAddItem() {
 function showOrders() {
   document.getElementById("add-item").style.display = "none";
   document.getElementById("order-section").style.display = "block";
-  renderItems(items);
+  renderItemsauto(items);
 }
 
 function showAddItem() {
@@ -338,28 +338,19 @@ function loadFinalOrderFromURL() {
   }
 }
 function autoGenerateCustomerLink() {
-  if (!items || !Array.isArray(items)) return;
+  const encoded = encodeURIComponent(JSON.stringify(items));
+  const fullUrl = window.location.origin + window.location.pathname + "?order=" + encoded;
 
-  const data = encodeURIComponent(JSON.stringify(items));
-  const longUrl = window.location.origin + window.location.pathname + "?order=" + data;
-
-  fetch("https://clck.ru/--?url=" + encodeURIComponent(longUrl))
-    .then(res => res.text())
-    .then(shortUrl => {
-      document.getElementById("link-section").innerHTML = `
-        <div>
-          <label>🔗 رابط الطلب للزبون:</label><br>
-          <input type="text" value="${shortUrl}" readonly style="width:90%; padding:8px; margin-top:5px;">
-          <div style="margin-top: 10px;">
-            <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a> |
-            <a href="https://wa.me/?text=${encodeURIComponent(shortUrl)}" target="_blank">📩 إرسال إلى واتساب</a>
-          </div>
-        </div>
-      `;
-    })
-    .catch(() => {
-      document.getElementById("link-section").innerHTML = "<p>❌ لم يتم توليد الرابط</p>";
-    });
+  document.getElementById("link-section").innerHTML = `
+    <div style="margin-top: 10px;">
+      <strong>رابط الطلب للزبون:</strong>
+      <input type="text" value="${fullUrl}" readonly style="width: 100%; margin-top: 5px;">
+      <div style="margin-top: 5px;">
+        <a href="${fullUrl}" target="_blank">🌐 فتح الرابط</a> |
+        <a href="https://wa.me/?text=${encodeURIComponent(fullUrl)}" target="_blank">📲 واتساب</a>
+      </div>
+    </div>
+  `;
 }
 
 // ✅ تنفيذ عند تحميل الصفحة
