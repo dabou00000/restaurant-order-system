@@ -357,7 +357,6 @@ function autoGenerateCustomerLink() {
     });
 }
 
-
 // ✅ تنفيذ عند تحميل الصفحة
 document.addEventListener("DOMContentLoaded", function () {
   const addItemSection = document.getElementById("add-item");
@@ -407,20 +406,15 @@ window.onload = function () {
     loadFinalOrderFromURL();
   } else if (params.has("order")) {
     loadFromURL();
+    document.getElementById("customer-info").style.display = "block";
+    document.getElementById("send-order-btn").style.display = "inline-block";
   } else {
+    // صفحة المطعم: حمّل الأصناف واحفظهم ثم أنشئ رابط تلقائي
     loadItemsFromLocal();
     renderItems(items);
-
-    // ✅ استدعِ توليد الرابط تلقائيًا
-    if (items.length > 0) {
-      autoGenerateCustomerLink();
-    }
+    autoGenerateCustomerLink();
   }
-
-  console.log("📦 تم تحميل الصفحة حسب نوع الرابط");
 };
-  
-  // ... الكود الموجود فوق كله
 
 function finalizeCustomerOrder() {
   const name = document.getElementById("customer-name").value || "";
