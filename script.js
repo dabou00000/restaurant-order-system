@@ -48,10 +48,12 @@ function showAddItem() {
 function showOrders() {
   document.getElementById("add-item").style.display = "none";
   document.getElementById("order-section").style.display = "block";
-  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   renderItems(items);
-  console.log("تم عرض الطلبات والبيانات:", items); // للتأكد من العرض
-  console.log("تم الانتهاء من عرض الطلبات"); // للتأكد من الانتهاء
+}
+
+function showAddItem() {
+  document.getElementById("add-item").style.display = "block";
+  document.getElementById("order-section").style.display = "none";
 }
 
 function addItem() {
@@ -287,7 +289,7 @@ function printOrder() {
 }
 if (!items || !Array.isArray(items)) {
   document.getElementById("link-section").innerHTML = "<p>❌ لا يمكن توليد الرابط حاليًا.</p>";
-  return;
+  
 }
 
   const data = encodeURIComponent(JSON.stringify(items));
@@ -337,29 +339,6 @@ function loadFinalOrderFromURL() {
   }
 }
 
-window.onload = function () {
-  const urlParams = new URLSearchParams(window.location.search);
-
-  if (urlParams.has("final")) {
-    // الرابط النهائي من الزبون إلى المطعم
-    loadFinalOrderFromURL();
-    document.getElementById("send-order-btn").style.display = "inline-block";
-    return;
-  }
-
-  if (urlParams.has("order")) {
-    // الرابط المولّد لمشاركة الأصناف فقط
-    loadFromURL();
-    document.getElementById("customer-info").style.display = "block";
-    document.getElementById("send-order-btn").style.display = "inline-block";
-    return;
-  }
-
-  // واجهة صاحب المطعم
-  loadItemsFromLocal();
-  renderItems(items);
-  autoGenerateCustomerLink(); // توليد الرابط تلقائيًا كل مرة
-};
 
 
 // ✅ تنفيذ عند تحميل الصفحة
@@ -496,3 +475,23 @@ function sendFinalOrder() {
   const url = "https://wa.me/?text=" + encodeURIComponent(message);
   window.open(url, "_blank");
 }
+///
+window.onload = function () {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  if (urlParams.has("order")) {
+    document.getElementById("customer-info").style.display = "block";
+    document.getElementById("send-order-btn").style.display = "inline-block";
+  }
+
+  if (urlParams.has("final")) {
+    loadFinalOrderFromURL();
+  } else if (urlParams.has("order")) {
+    loadFromURL();
+  } else {
+    loadItemsFromLocal();
+    renderItems(items);
+  }
+
+  autoGenerateCustomerLink(); // لتوليد الرابط دائمًا
+};
