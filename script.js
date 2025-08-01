@@ -30,13 +30,11 @@ function loadItemsFromLocal() {
   let saved = localStorage.getItem("menuItems");
   if (saved) {
     items = JSON.parse(saved);
-    console.log("تم تحميل البيانات:", items); // للتأكد من التحميل
+    console.log("📦 تم تحميل البيانات من الحفظ:", items);
   } else {
-    console.log("لا توجد بيانات محفوظة");
+    console.log("❗ لا توجد بيانات محفوظة.");
   }
-  console.log("تم الانتهاء من تحميل البيانات:", items); // للتأكد من الانتهاء
 }
-
 function showAddItem() {
   // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
   document.getElementById("add-item").style.display = "block";
@@ -338,7 +336,33 @@ function loadFinalOrderFromURL() {
     }
   }
 }
+function autoGenerateCustomerLink() {
+  if (!Array.isArray(items) || items.length === 0) {
+    document.getElementById("link-section").innerHTML = `<p style="color:red;">❌ لم يتم توليد الرابط</p>`;
+    return;
+  }
 
+  const data = encodeURIComponent(JSON.stringify(items));
+  const fullUrl = window.location.origin + window.location.pathname + "?order=" + data;
+
+  // اختصار باستخدام clck.ru
+  fetch("https://clck.ru/--?url=" + encodeURIComponent(fullUrl))
+    .then(res => res.text())
+    .then(shortUrl => {
+      document.getElementById("link-section").innerHTML = `
+        <div style="margin-top: 10px;">
+          🔗 <b>رابط الطلب للزبون:</b><br>
+          <input type="text" value="${shortUrl}" readonly style="width:90%;padding:10px;">
+          <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a>
+          <a href="https://wa.me/?text=${encodeURIComponent("رابط الطلب: " + shortUrl)}" target="_blank">📩 إرسال إلى واتساب</a>
+        </div>
+      `;
+    })
+    .catch(err => {
+      console.error("فشل في اختصار الرابط:", err);
+      document.getElementById("link-section").innerHTML = `<p style="color:red;">❌ لم يتم توليد الرابط</p>`;
+    });
+}
 
 
 // ✅ تنفيذ عند تحميل الصفحة
