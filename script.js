@@ -493,14 +493,17 @@ function loadFromURL() {
 }
 ///
 window.onload = function () {
-  const urlParams = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(window.location.search);
 
-  if (urlParams.has("order")) {
-    loadFromURL(); // حمل القائمة من الرابط
-  } else if (urlParams.has("final")) {
-    loadFinalOrderFromURL(); // طلب نهائي فيه الاسم والعنوان
+  if (params.has("final")) {
+    loadFinalOrderFromURL();
+    document.getElementById("customer-info").style.display = "block";
+    document.getElementById("send-order-btn").style.display = "inline-block";
+  } else if (params.has("order")) {
+    loadFromURL(); // ✅ هاي هي الدالة يلي ضفناها هلق
   } else {
-    loadItemsFromLocal(); // تحميل الأصناف من localStorage
+    loadItemsFromLocal();
     renderItems(items);
+    autoGenerateCustomerLink();
   }
 };
