@@ -44,23 +44,7 @@
 
   <script src="script.js"></script>
   <script>
-    // إظهار الحقول فقط إذا تم فتح رابط يحتوي طلب
-    window.onload = function () {
-  const urlParams = new URLSearchParams(window.location.search);
-
-  if (urlParams.has("order")) {
-    document.getElementById("customer-info").style.display = "block";
-    document.getElementById("send-order-btn").style.display = "inline-block";
-  }
-
-  if (urlParams.has("final")) {
-    loadFinalOrderFromURL(); // حمل الطلب النهائي
-  } else if (urlParams.has("order")) {
-    loadFromURL(); // حمل الأصناف من order
-  } else {
-    loadItemsFromLocal(); // صفحة المطعم
-  }
-};
+   
   </script>
 </body>
 </html>

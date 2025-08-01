@@ -25,7 +25,7 @@ if (isCustomerView) {
 }
   console.log("تم التأكد من الحفظ والتحميل:", items); // للتأكد من الحفظ والتحميل
 }
-
+autoGenerateCustomerLink();
 function loadItemsFromLocal() {
   let saved = localStorage.getItem("menuItems");
   if (saved) {
@@ -338,24 +338,27 @@ function loadFinalOrderFromURL() {
 }
 
 window.onload = function () {
-  const params = new URLSearchParams(window.location.search);
+  const urlParams = new URLSearchParams(window.location.search);
 
-  if (params.has("final")) {
-    // الزبون فتح الطلب النهائي، احذف أي بيانات محلية قديمة
-    localStorage.removeItem("menuItems");
+  if (urlParams.has("final")) {
+    // الرابط النهائي من الزبون إلى المطعم
     loadFinalOrderFromURL();
-  } else if (params.has("order")) {
-    loadFromURL();
-  } else {
-    // صاحب المطعم
-    loadItemsFromLocal();
-    renderItems(items);
-    if (!isCustomerView && items.length > 0) {
-  autoGenerateCustomerLink();
-}
+    document.getElementById("send-order-btn").style.display = "inline-block";
+    return;
   }
 
-  console.log("📦 تم تحميل الصفحة حسب نوع الرابط");
+  if (urlParams.has("order")) {
+    // الرابط المولّد لمشاركة الأصناف فقط
+    loadFromURL();
+    document.getElementById("customer-info").style.display = "block";
+    document.getElementById("send-order-btn").style.display = "inline-block";
+    return;
+  }
+
+  // واجهة صاحب المطعم
+  loadItemsFromLocal();
+  renderItems(items);
+  autoGenerateCustomerLink(); // توليد الرابط تلقائيًا كل مرة
 };
 
 
