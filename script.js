@@ -476,6 +476,21 @@ function sendFinalOrder() {
   const url = "https://wa.me/?text=" + encodeURIComponent(message);
   window.open(url, "_blank");
 }
+function loadFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has("order")) return;
+
+  try {
+    const data = JSON.parse(decodeURIComponent(params.get("order")));
+    if (Array.isArray(data)) {
+      items = data;
+      saveItemsToLocal(); // حتى يحفظها عند الزبون
+      renderItems(items); // عرض الأصناف في الصفحة
+    }
+  } catch (e) {
+    alert("❌ خطأ في قراءة البيانات من الرابط.");
+  }
+}
 ///
 window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search);
