@@ -338,10 +338,7 @@ function loadFinalOrderFromURL() {
   }
 }
 function autoGenerateCustomerLink() {
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    document.getElementById("link-section").innerHTML = "<p style='color:red'>❌ لم يتم توليد الرابط</p>";
-    return;
-  }
+  if (!items || !Array.isArray(items)) return;
 
   const data = encodeURIComponent(JSON.stringify(items));
   const longUrl = window.location.origin + window.location.pathname + "?order=" + data;
@@ -350,10 +347,18 @@ function autoGenerateCustomerLink() {
     .then(res => res.text())
     .then(shortUrl => {
       document.getElementById("link-section").innerHTML = `
-        <input type="text" value="${shortUrl}" readonly style="width:90%; padding:10px;">
-        <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a> |
-        <a href="https://wa.me/?text=${encodeURIComponent(shortUrl)}" target="_blank">📲 واتساب</a>
+        <div>
+          <label>🔗 رابط الطلب للزبون:</label><br>
+          <input type="text" value="${shortUrl}" readonly style="width:90%; padding:8px; margin-top:5px;">
+          <div style="margin-top: 10px;">
+            <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a> |
+            <a href="https://wa.me/?text=${encodeURIComponent(shortUrl)}" target="_blank">📩 إرسال إلى واتساب</a>
+          </div>
+        </div>
       `;
+    })
+    .catch(() => {
+      document.getElementById("link-section").innerHTML = "<p>❌ لم يتم توليد الرابط</p>";
     });
 }
 
@@ -399,22 +404,7 @@ function sendToWhatsApp() {
   console.log("تم إرسال الواتساب إلى:", number); // للتأكد من الإرسال
   console.log("تم الانتهاء من إرسال الواتساب"); // للتأكد من الانتهاء
 }
-window.onload = function () {
-  const params = new URLSearchParams(window.location.search);
 
-  if (params.has("final")) {
-    loadFinalOrderFromURL();
-  } else if (params.has("order")) {
-    loadFromURL();
-    document.getElementById("customer-info").style.display = "block";
-    document.getElementById("send-order-btn").style.display = "inline-block";
-  } else {
-    // صفحة المطعم: حمّل الأصناف واحفظهم ثم أنشئ رابط تلقائي
-    loadItemsFromLocal();
-    renderItems(items);
-    autoGenerateCustomerLink();
-  }
-};
 
 function finalizeCustomerOrder() {
   const name = document.getElementById("customer-name").value || "";
@@ -490,15 +480,12 @@ function sendFinalOrder() {
 window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search);
 
-  if (urlParams.has("final")) {
-    loadFinalOrderFromURL();
-  } else if (urlParams.has("order")) {
-    loadFromURL();
-    document.getElementById("customer-info").style.display = "block";
-    document.getElementById("send-order-btn").style.display = "inline-block";
+  if (urlParams.has("order")) {
+    loadFromURL(); // حمل القائمة من الرابط
+  } else if (urlParams.has("final")) {
+    loadFinalOrderFromURL(); // طلب نهائي فيه الاسم والعنوان
   } else {
-    loadItemsFromLocal();         // ⬅️ أولاً: حمّل الأصناف من التخزين
-    renderItems(items);           // ⬅️ ثم أعرضها
-    autoGenerateCustomerLink();   // ⬅️ ثم ولّد الرابط تلقائيًا
+    loadItemsFromLocal(); // تحميل الأصناف من localStorage
+    renderItems(items);
   }
 };
