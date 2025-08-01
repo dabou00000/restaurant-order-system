@@ -32,6 +32,7 @@ function loadItemsFromLocal() {
     items = JSON.parse(saved);
     console.log("📦 تم تحميل البيانات من الحفظ:", items);
   } else {
+    items = [];
     console.log("❗ لا توجد بيانات محفوظة.");
   }
 }
@@ -337,30 +338,22 @@ function loadFinalOrderFromURL() {
   }
 }
 function autoGenerateCustomerLink() {
-  if (!Array.isArray(items) || items.length === 0) {
-    document.getElementById("link-section").innerHTML = `<p style="color:red;">❌ لم يتم توليد الرابط</p>`;
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    document.getElementById("link-section").innerHTML = "<p style='color:red'>❌ لم يتم توليد الرابط</p>";
     return;
   }
 
   const data = encodeURIComponent(JSON.stringify(items));
-  const fullUrl = window.location.origin + window.location.pathname + "?order=" + data;
+  const longUrl = window.location.origin + window.location.pathname + "?order=" + data;
 
-  // اختصار باستخدام clck.ru
-  fetch("https://clck.ru/--?url=" + encodeURIComponent(fullUrl))
+  fetch("https://clck.ru/--?url=" + encodeURIComponent(longUrl))
     .then(res => res.text())
     .then(shortUrl => {
       document.getElementById("link-section").innerHTML = `
-        <div style="margin-top: 10px;">
-          🔗 <b>رابط الطلب للزبون:</b><br>
-          <input type="text" value="${shortUrl}" readonly style="width:90%;padding:10px;">
-          <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a>
-          <a href="https://wa.me/?text=${encodeURIComponent("رابط الطلب: " + shortUrl)}" target="_blank">📩 إرسال إلى واتساب</a>
-        </div>
+        <input type="text" value="${shortUrl}" readonly style="width:90%; padding:10px;">
+        <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a> |
+        <a href="https://wa.me/?text=${encodeURIComponent(shortUrl)}" target="_blank">📲 واتساب</a>
       `;
-    })
-    .catch(err => {
-      console.error("فشل في اختصار الرابط:", err);
-      document.getElementById("link-section").innerHTML = `<p style="color:red;">❌ لم يتم توليد الرابط</p>`;
     });
 }
 
@@ -503,19 +496,15 @@ function sendFinalOrder() {
 window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search);
 
-  if (urlParams.has("order")) {
-    document.getElementById("customer-info").style.display = "block";
-    document.getElementById("send-order-btn").style.display = "inline-block";
-  }
-
   if (urlParams.has("final")) {
     loadFinalOrderFromURL();
   } else if (urlParams.has("order")) {
     loadFromURL();
+    document.getElementById("customer-info").style.display = "block";
+    document.getElementById("send-order-btn").style.display = "inline-block";
   } else {
-    loadItemsFromLocal();
-    renderItems(items);
+    loadItemsFromLocal();         // ⬅️ أولاً: حمّل الأصناف من التخزين
+    renderItems(items);           // ⬅️ ثم أعرضها
+    autoGenerateCustomerLink();   // ⬅️ ثم ولّد الرابط تلقائيًا
   }
-
-  autoGenerateCustomerLink(); // لتوليد الرابط دائمًا
 };
