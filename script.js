@@ -1,508 +1,207 @@
-
 let items = [];
-let saved = localStorage.getItem("menuItems");
-if (saved) {
-  items = JSON.parse(saved);
-}
 let selectedItems = [];
 
-// تحميل البيانات المحفوظة عند بداية التطبيق
-
-console.log("تم تحميل البيانات عند بداية التطبيق:", items); // للتأكد من التحميل
-const urlParams = new URLSearchParams(window.location.search);
-const isCustomerView = urlParams.has('order');
-function saveItemsToLocal() {
-  localStorage.setItem("menuItems", JSON.stringify(items));
-  console.log("تم حفظ البيانات:", items); // للتأكد من الحفظ
-  // تحميل البيانات مرة أخرى للتأكد من الحفظ
-const urlParams = new URLSearchParams(window.location.search);
-const isCustomerView = urlParams.has("order");
-
-if (isCustomerView) {
-  loadFromURL(); // تحميل الأصناف من الرابط إذا الزبون فتحه
-} else {
-  loadItemsFromLocal(); // تحميل من التخزين المحلي إذا صاحب المطعم
-}
-  console.log("تم التأكد من الحفظ والتحميل:", items); // للتأكد من الحفظ والتحميل
-}
-GenerateCustomerLink();
-function loadItemsFromLocal() {
-  let saved = localStorage.getItem("menuItems");
-  if (saved) {
-    items = JSON.parse(saved);
-    console.log("📦 تم تحميل البيانات من الحفظ:", items);
-  } else {
-    items = [];
-    console.log("❗ لا توجد بيانات محفوظة.");
-  }
-}
-function showAddItem() {
-  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
-  document.getElementById("add-item").style.display = "block";
-  document.getElementById("order-section").style.display = "none";
-  console.log("تم عرض صفحة الإضافة والبيانات:", items); // للتأكد من العرض
-  console.log("تم الانتهاء من عرض صفحة الإضافة"); // للتأكد من الانتهاء
-}
-
-function showOrders() {
-  document.getElementById("add-item").style.display = "none";
-  document.getElementById("order-section").style.display = "block";
-  renderItemsauto(items);
-}
-
-function showAddItem() {
-  document.getElementById("add-item").style.display = "block";
-  document.getElementById("order-section").style.display = "none";
+function showAddItemForm() {
+  const content = document.getElementById("main-content");
+  content.innerHTML = `
+    <h2>CAVE RESTAURANT</h2>
+    <h3>إضافة صنف جديد</h3>
+    <input type="text" id="item-name" placeholder="اسم الصنف">
+    <input type="number" id="item-price" placeholder="السعر باللبناني">
+    <button onclick="addItem()">💾 حفظ الصنف</button>
+  `;
 }
 
 function addItem() {
-  let name = document.getElementById("item-name").value;
-  let price = parseInt(document.getElementById("item-price").value);
-  let optionsInput = document.getElementById("item-options").value;
-  let options = optionsInput ? optionsInput.split(",").map(function(opt) { return opt.trim(); }) : [];
-
-  if (name && price) {
-    items.push({ name: name, price: price, options: options });
-    localStorage.setItem("menuItems", JSON.stringify(items));
-    saveItemsToLocal(); // حفظ البيانات فوراً
-    autoGenerateCustomerLink();
-    alert("تمت إضافة الصنف!");
-    document.getElementById("item-name").value = "";
-    document.getElementById("item-price").value = "";
-    document.getElementById("item-options").value = "";
-    // تحميل وعرض البيانات المحفوظة
-    loadItemsFromLocal();
-    renderItems(items);
-    autoGenerateCustomerLink();
-    console.log("تم إضافة الصنف والبيانات الجديدة:", items); // للتأكد من الإضافة
-    console.log("تم الانتهاء من إضافة الصنف"); // للتأكد من الانتهاء
+  const name = document.getElementById("item-name").value;
+  const price = parseInt(document.getElementById("item-price").value);
+  if (name && price > 0) {
+    items.push({ name: name, price: price });
+    alert("تمت إضافة الصنف بنجاح!");
+  } else {
+    alert("يرجى إدخال اسم وسعر صحيح.");
   }
 }
 
-function searchItems(query) {
-  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
-  let filtered = items.filter(function(item) {
-    return item.name.toLowerCase().includes(query.toLowerCase());
-  });
+function showOrderInterface() {
+  const content = document.getElementById("main-content");
+  content.innerHTML = `
+    <h2>CAVE RESTAURANT</h2>
+    <h3>قائمة الطلبات</h3>
+    <input type="text" id="search-box" oninput="filterItems()" placeholder="ابحث عن صنف...">
+    <div id="items-list"></div>
+    <div class="selected-items" id="selected-items">
+      <h3>الطلب الحالي</h3>
+      <div id="order-preview"></div>
+      <div class="total-display" id="total-display">المجموع الكلي: 0 ل.ل</div>
+      
+      <div class="customer-info">
+        <h4>معلومات الزبون</h4>
+        <input type="text" id="customer-name" placeholder="اسم الزبون" class="customer-input">
+        <input type="text" id="customer-address" placeholder="عنوان الزبون" class="customer-input">
+      </div>
+      
+      <button onclick="printOrder()">🖨️ طباعة الطلبية</button>
+      <button onclick="sendWhatsAppOrder()" class="whatsapp-btn">📱 إرسال عبر واتساب</button>
+    </div>
+  `;
+  renderItems();
+}
+
+function filterItems() {
+  const search = document.getElementById("search-box").value.toLowerCase();
+  const filtered = items.filter(i => i.name.toLowerCase().includes(search));
   renderItems(filtered);
-  console.log("تم البحث والنتائج:", filtered); // للتأكد من البحث
-  console.log("تم الانتهاء من البحث"); // للتأكد من الانتهاء
 }
 
-function renderItems(list) {
-  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
-  let container = document.getElementById("items-list");
-  container.innerHTML = "";
+function renderItems(list = items) {
+  const listContainer = document.getElementById("items-list");
+  listContainer.innerHTML = "";
 
-  let isCustomer = new URLSearchParams(window.location.search).has("order");
-
-  list.forEach(function(item, index) {
-    let div = document.createElement("div");
-    div.className = "item";
-
-    let checkbox = '<input type="checkbox" onchange="toggleItem(' + index + ', this.checked)"> ';
-    let label = item.name + " - " + item.price + " ل.ل";
-    
-    let deleteBtn = "";
-    if (!isCustomer) {
-      deleteBtn = '<span class="delete-btn" onclick="deleteItem(' + index + ')">🗑 حذف نهائي</span>';
-    }
-
-    div.innerHTML = checkbox + label + " " + deleteBtn;
-    container.appendChild(div);
-  });
-  console.log("تم عرض العناصر:", list); // للتأكد من العرض
-  console.log("تم الانتهاء من عرض العناصر"); // للتأكد من الانتهاء
-}
-
-function deleteItem(index) {
-  let confirmDelete = confirm("هل أنت متأكد أنك تريد حذف هذا الصنف نهائيًا؟");
-  if (confirmDelete) {
-    items.splice(index, 1);
-    saveItemsToLocal(); // حفظ البيانات فوراً
-    loadItemsFromLocal(); // تحميل البيانات المحفوظة
-    renderItems(items);
-    console.log("تم حذف الصنف والبيانات الجديدة:", items); // للتأكد من الحذف
-    console.log("تم الانتهاء من حذف الصنف"); // للتأكد من الانتهاء
+  if (list.length === 0) {
+    listContainer.innerHTML = "<p>لا توجد نتائج</p>";
+    return;
   }
+
+  list.forEach((item, index) => {
+   const id = `item-${index}`;
+    const box = document.createElement("div");
+    box.className = "item-box";
+    box.innerHTML = `
+      <input type="checkbox" id="${id}" onchange="toggleItem(${index}, this.checked)">
+      <label for="${id}">${item.name} - ${item.price} ل.ل</label>
+    `;
+    listContainer.appendChild(box);
+  });
 }
-    autoGenerateCustomerLink();
 
 function toggleItem(index, checked) {
-  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
-  let item = items[index];
+  const item = items[index];
   if (checked) {
-    let selection = {
-      name: item.name,
-      price: item.price,
-      quantity: 1,
-      options: item.options,
-      selectedOptions: []
-    };
-    selectedItems.push(selection);
+    selectedItems.push({ ...item, quantity: 1 });
   } else {
-    selectedItems = selectedItems.filter(function(i) { return i.name !== item.name; });
+    selectedItems = selectedItems.filter(i => i.name !== item.name);
   }
   renderSelected();
-  console.log("تم تحديد/إلغاء تحديد العنصر:", item.name, "الحالة:", checked); // للتأكد من التحديد
-  console.log("تم الانتهاء من تحديد/إلغاء تحديد العنصر"); // للتأكد من الانتهاء
 }
 
 function renderSelected() {
-  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
-  let container = document.getElementById("selected-items");
+  const container = document.getElementById("order-preview");
   container.innerHTML = "";
 
-  selectedItems.forEach(function(item, i) {
-    let div = document.createElement("div");
-    div.className = "item";
-    let html = item.name + " - " + item.price + " × " +
-      '<input type="number" min="1" value="' + item.quantity + '" onchange="changeQty(' + i + ', this.value)">';
-
-    if (item.options.length > 0) {
-      html += "<div>الخصائص:<br>";
-      item.options.forEach(function(opt) {
-        let checked = item.selectedOptions.includes(opt) ? "checked" : "";
-        html += '<label><input type="checkbox" value="' + opt + '" ' + checked +
-                ' onchange="toggleOption(' + i + ', this)"> ' + opt + '</label> ';
-      });
-      html += "</div>";
-    }
-
-    html += '<span class="delete-btn" onclick="removeItem(' + i + ')">✖ حذف</span>';
-
-    div.innerHTML = html;
-    container.appendChild(div);
+  selectedItems.forEach((item, idx) => {
+    const row = document.createElement("div");
+    row.innerHTML = `
+      ${item.name} - ${item.price} ل.ل ×
+      <input type="number" min="1" value="${item.quantity}" onchange="updateQty(${idx}, this.value)">
+    `;
+    container.appendChild(row);
   });
 
   calculateTotal();
-  console.log("تم عرض العناصر المحددة:", selectedItems); // للتأكد من العرض
-  console.log("تم الانتهاء من عرض العناصر المحددة"); // للتأكد من الانتهاء
 }
 
-function changeQty(index, value) {
-  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
+function updateQty(index, value) {
   selectedItems[index].quantity = parseInt(value);
   calculateTotal();
-  console.log("تم تغيير الكمية:", selectedItems[index].name, "الكمية الجديدة:", value); // للتأكد من التغيير
-  console.log("تم الانتهاء من تغيير الكمية"); // للتأكد من الانتهاء
-}
-
-function toggleOption(index, el) {
-  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
-  let val = el.value;
-  let item = selectedItems[index];
-  if (el.checked) {
-    item.selectedOptions.push(val);
-  } else {
-    item.selectedOptions = item.selectedOptions.filter(function(o) { return o !== val; });
-  }
-  console.log("تم تغيير الخيارات:", item.name, "الخيارات الجديدة:", item.selectedOptions); // للتأكد من التغيير
-  console.log("تم الانتهاء من تغيير الخيارات"); // للتأكد من الانتهاء
 }
 
 function calculateTotal() {
-  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
-  let total = selectedItems.reduce(function(sum, item) {
-    return sum + item.price * item.quantity;
-  }, 0);
-  document.getElementById("total").innerText = "المجموع الكلي: " + total.toLocaleString() + " ل.ل";
-  console.log("تم حساب المجموع:", total); // للتأكد من الحساب
-  console.log("تم الانتهاء من حساب المجموع"); // للتأكد من الانتهاء
-}
-
-function prepareOrder() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const isCustomer = urlParams.has("order") || urlParams.has("final");
-
-  if (isCustomer) {
-    // الزبون لا يضغط هذا الزر، بل "إرسال الطلب"
-    return;
-  }
-
-  // المطعم فقط يحضّر الرابط
-  generateCustomerLink();
-}
-function finalizeCustomerOrder() {
-  const name = document.getElementById("customer-name").value.trim();
-  const address = document.getElementById("customer-address").value.trim();
-
-  if (!name || !address) {
-    alert("يرجى إدخال الاسم والعنوان.");
-    return;
-  }
-
-  const data = {
-    order: selectedItems,
-    name: name,
-    address: address
-  };
-
-  const encoded = encodeURIComponent(JSON.stringify(data));
-  const finalLink = window.location.origin + window.location.pathname + "?final=" + encoded;
-
-  // 🧾 توليد رسالة الطلب بشكل منسق
-  let message = `🧾 *طلب جديد من الزبون:*\n`;
-  message += `👤 الاسم: ${name}\n🏠 العنوان: ${address}\n\n`;
-
   let total = 0;
   selectedItems.forEach(item => {
     total += item.price * item.quantity;
-    const options = item.selectedOptions && item.selectedOptions.length
-      ? ` (${item.selectedOptions.join("، ")})` : '';
-    message += `🍽️ ${item.name}${options} × ${item.quantity} = ${item.price * item.quantity} ل.ل\n`;
   });
-
-  message += `\n💰 *المجموع الكلي:* ${total.toLocaleString()} ل.ل`;
-  message += `\n📎 *رابط الطلب:* ${finalLink}`;
-
-  const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
-  window.open(whatsappURL, "_blank");
-}
-
-function removeItem(index) {
-  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
-  selectedItems.splice(index, 1);
-  renderSelected();
-  console.log("تم حذف العنصر المحدد والبيانات الجديدة:", selectedItems); // للتأكد من الحذف
-  console.log("تم الانتهاء من حذف العنصر المحدد"); // للتأكد من الانتهاء
+  document.getElementById("total-display").innerText = "المجموع الكلي: " + total.toLocaleString() + " ل.ل";
 }
 
 function printOrder() {
-  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
-  let win = window.open('', '', 'width=700,height=500');
-  let html = selectedItems.map(function(item) {
-    return item.name + " × " + item.quantity + " = " + (item.price * item.quantity).toLocaleString() + " ل.ل";
-  }).join("\n");
-
-  let total = selectedItems.reduce(function(sum, item) {
-    return sum + item.price * item.quantity;
-  }, 0);
-
-  html += "\nالمجموع: " + total.toLocaleString() + " ل.ل";
-
-  win.document.write("<pre>" + html + "</pre>");
-  win.print();
-  console.log("تم طباعة الطلب:", selectedItems); // للتأكد من الطباعة
-  console.log("تم الانتهاء من طباعة الطلب"); // للتأكد من الانتهاء
-}
-if (!items || !Array.isArray(items)) {
-  document.getElementById("link-section").innerHTML = "<p>❌ لا يمكن توليد الرابط حاليًا.</p>";
+  const customerName = document.getElementById("customer-name")?.value || "غير محدد";
+  const customerAddress = document.getElementById("customer-address")?.value || "غير محدد";
   
-}
-
-  const data = encodeURIComponent(JSON.stringify(items));
-  const longUrl = window.location.origin + window.location.pathname + "?order=" + data;
-
-  fetch("https://clck.ru/--?url=" + encodeURIComponent(longUrl))
-    .then(res => res.text())
-    .then(shortUrl => {
-      document.getElementById("link-section").innerHTML = `
-        <div style="margin-top: 10px;">
-          <input type="text" value="${shortUrl}" readonly style="width: 90%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
-          <div style="margin-top: 8px;">
-            <a href="${shortUrl}" target="_blank" style="color: #0066cc; font-weight: bold;">🌐 فتح الرابط</a>
-            &nbsp; | &nbsp;
-            <a href="https://wa.me/?text=${encodeURIComponent("طلبية جديدة:\n" + shortUrl)}" target="_blank" style="background-color: #25D366; color: white; padding: 6px 10px; border-radius: 6px; font-weight: bold;">📲 واتساب</a>
-          </div>
-        </div>
-      `;
-    })
-    .catch(err => {
-      console.error("❌ فشل في اختصار الرابط:", err);
-      document.getElementById("link-section").innerHTML = `<p>❌ لم يتم توليد الرابط</p>`;
-    });
-
-function loadFinalOrderFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.has("final")) {
-    try {
-      const data = JSON.parse(decodeURIComponent(params.get("final")));
-      selectedItems = data.order || [];
-
-      document.getElementById("customer-info").style.display = "block";
-      document.getElementById("customer-name").value = data.name || "";
-      document.getElementById("customer-address").value = data.address || "";
-
-      document.getElementById("add-item").style.display = "none";
-      document.getElementById("order-section").style.display = "block";
-      document.querySelector(".sidebar").style.display = "none";
-
-      // ✅ إظهار زر "إرسال الطلب"
-      document.getElementById("send-order-btn").style.display = "inline-block";
-
-      renderSelected();
-    } catch (e) {
-      alert("❌ فشل في قراءة رابط الطلب.");
-    }
-  }
-}
-function autoGenerateCustomerLink() {
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    document.getElementById("link-section").innerHTML = "<p>❌ لا يمكن توليد الرابط حاليًا</p>";
-    return;
-  }
-
-  const encoded = encodeURIComponent(JSON.stringify(items));
-  const longUrl = window.location.origin + window.location.pathname + "?order=" + encoded;
-
-  // إذا بدك اختصار:
-  fetch("https://clck.ru/--?url=" + encodeURIComponent(longUrl))
-    .then(res => res.text())
-    .then(shortUrl => {
-      document.getElementById("link-section").innerHTML = `
-        <div style="margin-top: 10px;">
-          📎 رابط الطلب للزبون: 
-          <input type="text" value="${shortUrl}" style="width: 80%;" readonly />
-          <br />
-          <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a> |
-          <a href="https://wa.me/?text=${encodeURIComponent('رابط الطلب: ' + shortUrl)}" target="_blank">💬 إرسال إلى واتساب</a>
-        </div>
-      `;
-    });
-}
-// ✅ تنفيذ عند تحميل الصفحة
-document.addEventListener("DOMContentLoaded", function () {
-  const addItemSection = document.getElementById("add-item");
-  const addItemBtn = document.querySelector("button[onclick='showAddItem()']");
-  const customerLinkBtn = document.getElementById("generate-customer-link");
-
-  if (isCustomerView) {
-    // ✅ الزبون: إخفاء الأدوات الخاصة بالمطعم
-    if (addItemSection) addItemSection.style.display = "none";
-    if (addItemBtn) addItemBtn.style.display = "none";
-    if (customerLinkBtn) customerLinkBtn.style.display = "none";
-
-    // ✅ عرض واجهة الطلب والحقول
-    document.getElementById("order-section").style.display = "block";
-    document.getElementById("customer-info").style.display = "block";
-  } else {
-    // صاحب المطعم: تفعيل زر توليد الرابط
-    if (customerLinkBtn) {
-      customerLinkBtn.addEventListener("click", generateCustomerLink);
-    }
-    renderItems(items); // عرض البيانات المحملة
-  }
-  console.log("تم تحميل DOM والبيانات:", items); // للتأكد من التحميل
-  console.log("تم الانتهاء من تحميل DOM"); // للتأكد من الانتهاء
-});
-
-
-
-function sendToWhatsApp() {
-  // لا نحتاج لتحميل البيانات المحفوظة هنا لأن البيانات تأتي من الرابط
-  let number = document.getElementById("whatsNumber").value;
-  if (!number) {
-    alert("الرجاء إدخال رقم الواتساب");
-    return;
-  }
+  let content = `CAVE RESTAURANT\n`;
+  content += `═══════════════════\n\n`;
+  content += `اسم الزبون: ${customerName}\n`;
+  content += `العنوان: ${customerAddress}\n`;
+  content += `═══════════════════\n\n`;
   
-  let message = "مرحباً! أريد طلبية جديدة.";
-  let whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
-  window.open(whatsappUrl, '_blank');
-  console.log("تم إرسال الواتساب إلى:", number); // للتأكد من الإرسال
-  console.log("تم الانتهاء من إرسال الواتساب"); // للتأكد من الانتهاء
-}
-
-
-function finalizeCustomerOrder() {
-  const name = document.getElementById("customer-name").value || "";
-  const address = document.getElementById("customer-address").value || "";
-
-  const data = {
-    order: selectedItems,
-    name: name,
-    address: address
-  };
-
-  const encoded = encodeURIComponent(JSON.stringify(data));
-  const finalLink = window.location.origin + window.location.pathname + "?final=" + encoded;
-
-  // عرض الرابط للزبون حتى ينسخه أو يرسله
-  document.getElementById("link-section").innerHTML = `
-    <div>
-      <input type="text" value="${finalLink}" readonly style="width:90%; padding:10px;">
-      <a href="${finalLink}" target="_blank">🌐 فتح الطلبية</a>
-      <a href="https://wa.me/?text=${encodeURIComponent("طلب جديد:\n" + finalLink)}" target="_blank">📩 إرسال عبر واتساب</a>
-    </div>
-  `;
-  function loadFinalOrderFromURL() {
-  const params = new URLSearchParams(window.location.search);
- 
-    if (params.has("final")) {
-  localStorage.removeItem("menuItems"); // 🧹 إزالة البيانات القديمة من localStorage
-  loadFinalOrderFromURL(); // 🔁 تحميل الطلب النهائي من الزبون
-
-    try {
-      const data = JSON.parse(decodeURIComponent(params.get("final")));
-      selectedItems = data.order || [];
-
-      document.getElementById("customer-info").style.display = "block";
-      document.getElementById("customer-name").value = data.name || "";
-      document.getElementById("customer-address").value = data.address || "";
-
-      document.getElementById("add-item").style.display = "none";
-      document.getElementById("order-section").style.display = "block";
-      document.querySelector(".sidebar").style.display = "none";
-
-      renderSelected();
-    } catch (e) {
-      alert("❌ فشل في قراءة رابط الطلب.");
-    }
-  }
-}
-}
-
-function sendFinalOrder() {
-  const name = document.getElementById("customer-name").value.trim();
-  const address = document.getElementById("customer-address").value.trim();
-
-  if (!name || !address) {
-    alert("❗ يرجى إدخال الاسم والعنوان.");
-    return;
-  }
-
-  let message = `طلب جديد من الزبون:\n📍 الاسم: ${name}\n📦 العنوان: ${address}\n🧾 الطلب:\n`;
-
-  selectedItems.forEach(item => {
-    const options = item.selectedOptions?.length ? ` (${item.selectedOptions.join("، ")})` : "";
-    message += `- ${item.name}${options} × ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} ل.ل\n`;
-  });
+  content += selectedItems.map(item =>
+    item.name + " × " + item.quantity + " = " + (item.price * item.quantity).toLocaleString() + " ل.ل"
+  ).join("\n");
 
   let total = selectedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  message += `\n💰 المجموع الكلي: ${total.toLocaleString()} ل.ل`;
+  content += "\n\n═══════════════════\n";
+  content += "المجموع: " + total.toLocaleString() + " ل.ل";
 
-  const url = "https://wa.me/?text=" + encodeURIComponent(message);
-  window.open(url, "_blank");
+  let win = window.open("", "", "height=700,width=900");
+  win.document.write(`
+  <html>
+    <head>
+      <style>
+        body {
+          font-size: 22px;
+          font-family: 'Arial', sans-serif;
+          direction: rtl;
+          padding: 20px;
+          text-align: center;
+        }
+        .restaurant-name {
+          font-size: 28px;
+          font-weight: bold;
+          margin-bottom: 20px;
+        }
+        .divider {
+          border-top: 2px solid #000;
+          margin: 15px 0;
+        }
+      </style>
+    </head>
+    <body>
+      <pre>${content}</pre>
+    </body>
+  </html>
+`);
+  win.print();
 }
-function loadFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  if (!params.has("order")) return;
 
-  try {
-    const data = JSON.parse(decodeURIComponent(params.get("order")));
-    if (Array.isArray(data)) {
-      items = data;
-      saveItemsToLocal(); // حتى يحفظها عند الزبون
-      renderItems(items); // عرض الأصناف في الصفحة
-    }
-  } catch (e) {
-    alert("❌ خطأ في قراءة البيانات من الرابط.");
+function sendWhatsAppOrder() {
+  const customerName = document.getElementById("customer-name")?.value || "غير محدد";
+  const customerAddress = document.getElementById("customer-address")?.value || "غير محدد";
+  
+  if (selectedItems.length === 0) {
+    alert("يرجى اختيار أصناف للطلب أولاً");
+    return;
   }
+  
+  if (!customerName || customerName === "غير محدد") {
+    alert("يرجى إدخال اسم الزبون");
+    return;
+  }
+  
+  if (!customerAddress || customerAddress === "غير محدد") {
+    alert("يرجى إدخال عنوان الزبون");
+    return;
+  }
+  
+  let message = `🍽️ *CAVE RESTAURANT* 🍽️\n\n`;
+  message += `🧍 *اسم الزبون:* ${customerName}\n`;
+  message += `🏠 *العنوان:* ${customerAddress}\n\n`;
+  message += `📋 *تفاصيل الطلب:*\n`;
+  message += `═══════════════════\n\n`;
+  
+  selectedItems.forEach(item => {
+    message += `🍽️ ${item.name}\n`;
+    message += `🔢 الكمية: ${item.quantity}\n`;
+    message += `💰 السعر: ${(item.price * item.quantity).toLocaleString()} ل.ل\n\n`;
+  });
+  
+  let total = selectedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  message += `═══════════════════\n`;
+  message += `💰 *المجموع الكلي: ${total.toLocaleString()} ل.ل* 💰\n\n`;
+  message += `شكراً لطلبكم من CAVE RESTAURANT! 🎉`;
+  
+  // رقم الواتساب - يمكن تغييره حسب الحاجة
+  const phoneNumber = "96170000000"; // استبدل برقم صاحب المطعم الفعلي
+  
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, '_blank');
 }
-///
-window.onload = function () {
-  const params = new URLSearchParams(window.location.search);
-
-  if (params.has("final")) {
-    loadFinalOrderFromURL();
-    document.getElementById("customer-info").style.display = "block";
-    document.getElementById("send-order-btn").style.display = "inline-block";
-  } else if (params.has("order")) {
-    loadFromURL(); // ✅ هاي هي الدالة يلي ضفناها هلق
-  } else {
-    loadItemsFromLocal();
-    renderItems(items);
-    autoGenerateCustomerLink();
-  }
-};
