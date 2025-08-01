@@ -338,21 +338,29 @@ function loadFinalOrderFromURL() {
   }
 }
 function autoGenerateCustomerLink() {
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    document.getElementById("link-section").innerHTML = "<p>❌ لا يمكن توليد الرابط حاليًا</p>";
+    return;
+  }
+
   const encoded = encodeURIComponent(JSON.stringify(items));
-  const fullUrl = window.location.origin + window.location.pathname + "?order=" + encoded;
+  const longUrl = window.location.origin + window.location.pathname + "?order=" + encoded;
 
-  document.getElementById("link-section").innerHTML = `
-    <div style="margin-top: 10px;">
-      <strong>رابط الطلب للزبون:</strong>
-      <input type="text" value="${fullUrl}" readonly style="width: 100%; margin-top: 5px;">
-      <div style="margin-top: 5px;">
-        <a href="${fullUrl}" target="_blank">🌐 فتح الرابط</a> |
-        <a href="https://wa.me/?text=${encodeURIComponent(fullUrl)}" target="_blank">📲 واتساب</a>
-      </div>
-    </div>
-  `;
+  // إذا بدك اختصار:
+  fetch("https://clck.ru/--?url=" + encodeURIComponent(longUrl))
+    .then(res => res.text())
+    .then(shortUrl => {
+      document.getElementById("link-section").innerHTML = `
+        <div style="margin-top: 10px;">
+          📎 رابط الطلب للزبون: 
+          <input type="text" value="${shortUrl}" style="width: 80%;" readonly />
+          <br />
+          <a href="${shortUrl}" target="_blank">🌐 فتح الرابط</a> |
+          <a href="https://wa.me/?text=${encodeURIComponent('رابط الطلب: ' + shortUrl)}" target="_blank">💬 إرسال إلى واتساب</a>
+        </div>
+      `;
+    });
 }
-
 // ✅ تنفيذ عند تحميل الصفحة
 document.addEventListener("DOMContentLoaded", function () {
   const addItemSection = document.getElementById("add-item");
