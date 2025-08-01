@@ -353,6 +353,7 @@ function sendCustomerOrder() {
   message += `سيتم التواصل معكم قريباً 📞`;
   
   // رقم الواتساب - يمكن تغييره حسب الحاجة
+  const phoneNumber = "96171783701"; // استبدل برقم صاحب المطعم الفعلي
   
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
   window.open(whatsappUrl, '_blank');
