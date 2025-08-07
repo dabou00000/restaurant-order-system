@@ -3,24 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CAVE RESTAURANT - نظام إدارة الطلبات</title>
+  <title>Sardecoffeshop - نظام إدارة الطلبات</title>
+  
+  <!-- Security Headers -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data: blob:; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  
+  <!-- Performance & SEO -->
+  <meta name="description" content="نظام إدارة طلبات المطاعم - Sardecoffeshop">
+  <meta name="keywords" content="مطعم, طلبات, إدارة, QR code, Sardecoffeshop">
+  <meta name="author" content="Sardecoffeshop">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Preload Critical Resources -->
+  <link rel="preload" href="style.css" as="style">
+  <link rel="preload" href="script.js" as="script">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;800&display=swap" as="style">
+  
+  <!-- Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#667eea" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Sardecoffeshop" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
 </head>
 <body>
   <div class="app-container">
     <aside class="sidebar">
-      <h2>CAVE RESTAURANT</h2>
+      <h2>Sardecoffeshop</h2>
       <h3>نظام الطلبات</h3>
-      <button onclick="showAddItemForm()">➕ إضافة صنف جديد</button>
-      <button onclick="showOrderInterface()">📋 قائمة الطلبات</button>
+      <button onclick="showAddItemForm()" class="sidebar-btn">➕ إضافة صنف جديد</button>
+      <button onclick="showOrderInterface()" class="sidebar-btn">📋 قائمة الطلبات</button>
+      <button onclick="showTablesInterface()" class="sidebar-btn">🪑 إدارة الطاولات</button>
+      <button onclick="showKitchenInterface()" class="sidebar-btn">👨‍🍳 واجهة المطبخ</button>
     </aside>
     <main class="main-content" id="main-content">
-      <h1>مرحباً بك في CAVE RESTAURANT 👋</h1>
+      <h1>مرحباً بك في Sardecoffeshop 👋</h1>
       <p>اختر من القائمة الجانبية لبدء العمل</p>
+      
+      <!-- Loading Indicator -->
+      <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>جاري التحميل...</p>
+      </div>
     </main>
   </div>
+  
+  <!-- Scripts -->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   <script src="script.js"></script>
+  <script>
+    // تسجيل Service Worker للعمل بدون إنترنت
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+    
+    // Error Handling
+    window.addEventListener('error', function(e) {
+      console.error('Global error:', e.error);
+    });
+    
+    // Performance Monitoring
+    window.addEventListener('load', function() {
+      if ('performance' in window) {
+        const perfData = performance.getEntriesByType('navigation')[0];
+        console.log('Page load time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
+      }
+    });
+  </script>
 </body>
 </html>

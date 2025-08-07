@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مطبخ Sardecoffeshop</title>
+  
+  <!-- Security Headers -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data: blob:; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  
+  <!-- Performance & SEO -->
+  <meta name="description" content="واجهة المطبخ - Sardecoffeshop">
+  <meta name="keywords" content="مطبخ, طلبات, Sardecoffeshop">
+  <meta name="author" content="Sardecoffeshop">
+  <meta name="robots" content="noindex, nofollow">
+  
+  <!-- Preload Critical Resources -->
+  <link rel="preload" href="style.css" as="style">
+  <link rel="preload" href="kitchen.js" as="script">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;800&display=swap" as="style">
+  
+  <!-- Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#667eea" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Sardecoffeshop Kitchen" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👨‍🍳</text></svg>">
+  
+  <style>
+    /* Kitchen specific styles */
+    .kitchen-container {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .kitchen-header {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      border-radius: 0 0 25px 25px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .kitchen-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(102,126,234,0.1)"/><circle cx="80" cy="40" r="1" fill="rgba(102,126,234,0.1)"/><circle cx="40" cy="80" r="1.5" fill="rgba(102,126,234,0.1)"/></svg>');
+      animation: float 20s infinite linear;
+    }
+    
+    .kitchen-header h1 {
+      margin: 0 0 15px 0;
+      color: #1a1a2e;
+      font-size: 3em;
+      font-weight: 900;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .kitchen-header p {
+      margin: 0 0 20px 0;
+      color: #666;
+      font-size: 1.3em;
+      font-weight: 500;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .kitchen-stats {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .kitchen-stats span {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-weight: 700;
+      font-size: 1.2em;
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .kitchen-stats span:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+    
+    .kitchen-main {
+      flex: 1;
+      padding: 30px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .orders-section, .service-section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 25px;
+      padding: 30px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .orders-section h2, .service-section h2 {
+      margin: 0 0 25px 0;
+      color: #1a1a2e;
+      font-size: 2.2em;
+      font-weight: 800;
+      border-bottom: 4px solid #667eea;
+      padding-bottom: 15px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .orders-grid {
+      display: grid;
+      gap: 20px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    
+    .order-card {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border-left: 6px solid #e74c3c;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+    }
+    
+    .order-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+    
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f1f3f4;
+    }
+    
+    .order-header h3 {
+      margin: 0;
+      color: #1a1a2e;
+      font-size: 1.6em;
+      font-weight: 700;
+    }
+    
+    .order-time {
+      color: #666;
+      font-size: 1em;
+      background: #f8f9fa;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    
+    .order-items {
+      margin-bottom: 20px;
+    }
+    
+    .order-items h4 {
+      margin: 0 0 15px 0;
+      color: #1a1a2e;
+      font-size: 1.3em;
+      font-weight: 700;
+    }
+    
+    .order-items ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .order-items li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f3f4;
+      transition: all 0.3s ease;
+    }
+    
+    .order-items li:hover {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    
+    .order-items li:last-child {
+      border-bottom: none;
+    }
+    
+    .item-name {
+      font-weight: 700;
+      color: #1a1a2e;
+      font-size: 1.1em;
+    }
+    
+    .item-quantity {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-size: 0.9em;
+      font-weight: 700;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .item-options {
+      color: #666;
+      font-size: 0.9em;
+      font-style: italic;
+      margin-top: 5px;
+    }
+    
+    .order-notes {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .order-notes h4 {
+      margin: 0 0 10px 0;
+      color: #856404;
+      font-size: 1.1em;
+      font-weight: 700;
+    }
+    
+    .order-notes p {
+      margin: 0;
+      color: #856404;
+      font-style: italic;
+      line-height: 1.5;
+    }
+    
+    .order-actions {
+      text-align: center;
+    }
+    
+    .complete-btn {
+      background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+      color: white !important;
+      border: none !important;
+      padding: 15px 30px !important;
+      border-radius: 25px !important;
+      font-size: 1.2em !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      box-shadow: 0 8px 25px rgba(39, 174, 96, 0.3) !important;
+      letter-spacing: 1px;
+    }
+    
+    .complete-btn:hover {
+      background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+      transform: translateY(-3px) scale(1.05) !important;
+      box-shadow: 0 15px 35px rgba(39, 174, 96, 0.4) !important;
+    }
+    
+    .service-requests {
+      display: grid;
+      gap: 20px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    
+    .service-request-card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border-left: 6px solid #f39c12;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+    }
+    
+    .service-request-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+    
+    .request-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .request-header h4 {
+      margin: 0;
+      color: #1a1a2e;
+      font-size: 1.4em;
+      font-weight: 700;
+    }
+    
+    .request-time {
+      color: #666;
+      font-size: 0.9em;
+      background: #f8f9fa;
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-weight: 600;
+    }
+    
+    .request-content {
+      margin-bottom: 15px;
+    }
+    
+    .request-content p {
+      margin: 8px 0;
+      color: #1a1a2e;
+      line-height: 1.5;
+    }
+    
+    .request-content strong {
+      color: #1a1a2e;
+      font-weight: 700;
+    }
+    
+    .complete-service-btn {
+      background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+      color: white !important;
+      border: none !important;
+      padding: 12px 25px !important;
+      border-radius: 20px !important;
+      font-size: 1.1em !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      box-shadow: 0 6px 20px rgba(243, 156, 18, 0.3) !important;
+      letter-spacing: 1px;
+    }
+    
+    .complete-service-btn:hover {
+      background: linear-gradient(135deg, #e67e22, #f39c12) !important;
+      transform: translateY(-2px) scale(1.05) !important;
+      box-shadow: 0 10px 30px rgba(243, 156, 18, 0.4) !important;
+    }
+    
+    .kitchen-footer {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px 30px;
+      text-align: center;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+      border-radius: 25px 25px 0 0;
+      backdrop-filter: blur(10px);
+    }
+    
+    .kitchen-footer p {
+      margin: 0 0 15px 0;
+      color: #666;
+      font-size: 1em;
+      font-weight: 500;
+    }
+    
+    .back-btn {
+      background: linear-gradient(135deg, #1a1a2e, #16213e) !important;
+      color: white !important;
+      border: none !important;
+      padding: 12px 25px !important;
+      border-radius: 20px !important;
+      font-size: 1em !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      transition: all 0.3s ease !important;
+      text-decoration: none !important;
+      display: inline-block !important;
+    }
+    
+    .back-btn:hover {
+      background: linear-gradient(135deg, #16213e, #1a1a2e) !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 25px rgba(26, 26, 46, 0.3) !important;
+    }
+    
+    .no-orders, .no-requests {
+      text-align: center;
+      padding: 60px 30px;
+      color: #666;
+      font-size: 1.3em;
+      font-style: italic;
+      background: rgba(248, 249, 250, 0.5);
+      border-radius: 20px;
+      border: 2px dashed #dee2e6;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .kitchen-main {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 20px;
+      }
+      
+      .kitchen-header h1 {
+        font-size: 2.5em;
+      }
+      
+      .kitchen-stats {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .kitchen-header {
+        padding: 20px;
+      }
+      
+      .kitchen-header h1 {
+        font-size: 2em;
+      }
+      
+      .kitchen-header p {
+        font-size: 1.1em;
+      }
+      
+      .kitchen-main {
+        padding: 15px;
+      }
+      
+      .orders-section, .service-section {
+        padding: 20px;
+      }
+      
+      .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .order-items li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      
+      .request-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(-20px) rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="kitchen-container">
+    <header class="kitchen-header">
+      <h1>مطبخ Sardecoffeshop</h1>
+      <p>مراقبة الطلبات والطلبات الجديدة</p>
+      <div class="kitchen-stats">
+        <span id="activeOrders">0 طلب نشط</span>
+        <span id="completedOrders">0 طلب مكتمل</span>
+        <span id="serviceRequests">0 طلب خدمة</span>
+      </div>
+    </header>
+    
+    <main class="kitchen-main">
+      <section class="orders-section">
+        <h2>الطلبات النشطة</h2>
+        <div class="orders-grid" id="ordersGrid">
+          <div class="no-orders">لا توجد طلبات نشطة حالياً</div>
+        </div>
+      </section>
+      
+      <section class="service-section">
+        <h2>طلبات الخدمة</h2>
+        <div class="service-requests" id="serviceRequestsGrid">
+          <div class="no-requests">لا توجد طلبات خدمة</div>
+        </div>
+      </section>
+    </main>
+    
+    <footer class="kitchen-footer">
+      <p>آخر تحديث: <span id="lastUpdate">الآن</span></p>
+      <button onclick="window.location.href='index.html'" class="back-btn">العودة للوحة التحكم</button>
+    </footer>
+  </div>
+  
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="kitchen.js"></script>
+</body>
+</html> 
