@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sardecoffeshop - نظام إدارة الطلبات</title>
+  
+  <!-- Security Headers -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data: blob:; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  
+  <!-- Performance & SEO -->
+  <meta name="description" content="نظام إدارة طلبات المطاعم - Sardecoffeshop">
+  <meta name="keywords" content="مطعم, طلبات, إدارة, QR code, Sardecoffeshop">
+  <meta name="author" content="Sardecoffeshop">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <link rel="stylesheet" href="app.css" />
+  
+  <!-- PWA -->
+  <meta name="theme-color" content="#667eea" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Sardecoffeshop" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+</head>
+<body>
+  <!-- Auth Interface -->
+  <div id="auth-interface" class="auth-container">
+    <div class="auth-box">
+      <h1 class="auth-logo">Sardecoffeshop</h1>
+      <p class="auth-subtitle">تسجيل الدخول للنظام</p>
+      
+      <div id="auth-error" class="auth-error"></div>
+      
+      <form class="auth-form" onsubmit="handleLogin(event)">
+        <div class="auth-input-group">
+          <label>اسم المستخدم</label>
+          <input type="text" id="username" class="auth-input" required>
+        </div>
+        
+        <div class="auth-input-group">
+          <label>كلمة المرور</label>
+          <input type="password" id="password" class="auth-input" required>
+        </div>
+        
+        <button type="submit" class="auth-btn">تسجيل الدخول</button>
+      </form>
+      
+      <div class="auth-links">
+        <a href="#" onclick="showResetPassword()">نسيت كلمة المرور؟</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <h2>Sardecoffeshop</h2>
+      <p>جاري التحميل...</p>
+    </div>
+  </div>
+
+  <!-- Admin Interface -->
+  <div id="admin-interface" class="app-container" style="display: none;">
+    <aside class="sidebar">
+      <h2>Sardecoffeshop</h2>
+      <h3>نظام الطلبات</h3>
+      <div class="user-info">
+        <span class="role-badge" id="userRoleBadge"></span>
+        <span id="userName"></span>
+      </div>
+      
+      <button onclick="showAddItemForm()" class="sidebar-btn" data-role="admin">➕ إضافة صنف جديد</button>
+      <button onclick="showOrderInterface()" class="sidebar-btn" data-role="admin,staff">📋 قائمة الطلبات</button>
+      <button onclick="showTablesInterface()" class="sidebar-btn" data-role="admin">🪑 إدارة الطاولات</button>
+      <button onclick="showKitchenInterface()" class="sidebar-btn" data-role="admin,kitchen">👨‍🍳 واجهة المطبخ</button>
+      <button onclick="showCustomerInterface()" class="sidebar-btn" data-role="admin,staff">🍽️ واجهة العميل</button>
+      <button onclick="showReportsInterface()" class="sidebar-btn" data-role="admin">📊 التقارير والإحصائيات</button>
+      <button onclick="showInventoryInterface()" class="sidebar-btn" data-role="admin">📦 إدارة المخزون</button>
+      <button onclick="showNotificationsInterface()" class="sidebar-btn" data-role="admin,kitchen,staff">🔔 نظام الإشعارات</button>
+      
+      <button onclick="logout()" class="sidebar-btn logout-btn">🚪 تسجيل الخروج</button>
+    </aside>
+    <main class="main-content" id="main-content">
+      <h1>مرحباً بك في Sardecoffeshop 👋</h1>
+      <p>اختر من القائمة الجانبية لبدء العمل</p>
+    </main>
+  </div>
+
+  <!-- Kitchen Interface -->
+  <div id="kitchen-interface" class="kitchen-container" style="display: none;">
+    <header class="kitchen-header">
+      <h1>مطبخ Sardecoffeshop</h1>
+      <p>مراقبة الطلبات والطلبات الجديدة</p>
+      <div class="kitchen-stats">
+        <span id="activeOrders">0 طلب نشط</span>
+        <span id="completedOrders">0 طلب مكتمل</span>
+        <span id="serviceRequests">0 طلب خدمة</span>
+      </div>
+    </header>
+    
+    <main class="kitchen-main">
+      <section class="orders-section">
+        <h2>الطلبات النشطة</h2>
+        <div class="orders-grid" id="ordersGrid">
+          <div class="no-orders">لا توجد طلبات نشطة حالياً</div>
+        </div>
+      </section>
+      
+      <section class="service-section">
+        <h2>طلبات الخدمة</h2>
+        <div class="service-requests" id="serviceRequestsGrid">
+          <div class="no-requests">لا توجد طلبات خدمة</div>
+        </div>
+      </section>
+    </main>
+    
+    <footer class="kitchen-footer">
+      <p>آخر تحديث: <span id="lastUpdate">الآن</span></p>
+      <button onclick="showAdminInterface()" class="back-btn">العودة للوحة التحكم</button>
+    </footer>
+  </div>
+
+  <!-- Customer Interface -->
+  <div id="customer-interface" class="order-container" style="display: none;">
+    <header class="customer-header">
+      <div class="restaurant-brand">
+        <h1 class="brand-title">Sardé</h1>
+        <h2 class="brand-subtitle">سردة</h2>
+        <div class="brand-divider"></div>
+        <div class="table-info" id="tableInfo">
+          <select id="tableSelector" onchange="selectTable()">
+            <option value="">اختر الطاولة</option>
+            <option value="1">طاولة 1</option>
+            <option value="2">طاولة 2</option>
+            <option value="3">طاولة 3</option>
+            <option value="4">طاولة 4</option>
+            <option value="5">طاولة 5</option>
+          </select>
+        </div>
+      </div>
+    </header>
+    
+    <div class="customer-interface">
+      <div class="menu-section">
+        <h3>📋 قائمة الطعام</h3>
+        <div id="menuItems">
+          <div class="no-items">اختر طاولة أولاً لعرض القائمة</div>
+        </div>
+      </div>
+      
+      <div class="order-section">
+        <h3>🛒 طلبك</h3>
+        <div id="selectedItems">
+          <div class="empty-order">لم تختر أي أصناف بعد</div>
+        </div>
+        
+        <div class="customer-info">
+          <h4>📝 معلومات إضافية</h4>
+          <input type="text" id="customerName" class="customer-input" placeholder="اسمك (اختياري)">
+          <textarea id="orderNotes" class="customer-input" placeholder="ملاحظات خاصة للطلب (اختياري)" rows="3"></textarea>
+        </div>
+        
+        <div class="order-actions">
+          <button onclick="sendOrder()" class="send-order-btn">📤 إرسال الطلبية</button>
+          <button onclick="requestService()" class="service-btn">🔔 طلب خدمة</button>
+          <button onclick="showAdminInterface()" class="back-btn">العودة للإدارة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print QR Modal -->
+  <div id="print-modal" class="print-modal" style="display: none;">
+    <div class="print-content">
+      <div class="qr-print-card">
+        <h2>Sardecoffeshop</h2>
+        <div id="qr-code-container"></div>
+        <h3 id="table-name">Table 1</h3>
+        <p>امسح هذا الكود للطلب من طاولتك</p>
+        <div class="print-actions">
+          <button onclick="printQR()" class="btn-primary">🖨️ طباعة</button>
+          <button onclick="closePrintModal()" class="btn-secondary">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications Interface -->
+  <div id="notifications-interface" class="notifications-container" style="display: none;">
+    <header class="notifications-header">
+      <h1>🔔 نظام الإشعارات المتقدم</h1>
+      <p>إدارة الإشعارات للعملاء والمطبخ والإدارة</p>
+      <div class="notifications-stats">
+        <span id="unreadNotifications">0 إشعارات جديدة</span>
+        <span id="totalNotifications">0 إجمالي الإشعارات</span>
+        <span id="activeAlerts">0 تنبيهات نشطة</span>
+      </div>
+    </header>
+    
+    <main class="notifications-main">
+      <div class="notifications-sidebar">
+        <div class="notification-filters">
+          <h3>🔍 تصفية الإشعارات</h3>
+          <button class="filter-btn active" onclick="filterNotifications('all')">📋 جميع الإشعارات</button>
+          <button class="filter-btn" onclick="filterNotifications('orders')">🍽️ طلبات الطعام</button>
+          <button class="filter-btn" onclick="filterNotifications('service')">🔔 طلبات الخدمة</button>
+          <button class="filter-btn" onclick="filterNotifications('kitchen')">👨‍🍳 إشعارات المطبخ</button>
+          <button class="filter-btn" onclick="filterNotifications('inventory')">📦 تنبيهات المخزون</button>
+          <button class="filter-btn" onclick="filterNotifications('system')">⚙️ إشعارات النظام</button>
+        </div>
+        
+        <div class="notification-settings">
+          <h3>⚙️ إعدادات الإشعارات</h3>
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="soundEnabled" checked>
+              صوت الإشعارات
+            </label>
+          </div>
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="desktopNotifications" checked>
+              إشعارات سطح المكتب
+            </label>
+          </div>
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="autoRefresh" checked>
+              تحديث تلقائي
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="notifications-content">
+        <div class="notifications-toolbar">
+          <div class="notifications-search">
+            <input type="text" id="notificationSearch" placeholder="البحث في الإشعارات..." onkeyup="searchNotifications()">
+          </div>
+          <div class="notifications-actions">
+            <button onclick="markAllAsRead()" class="action-btn">✅ تحديد الكل كمقروء</button>
+            <button onclick="clearAllNotifications()" class="action-btn danger">🗑️ مسح الكل</button>
+            <button onclick="exportNotifications()" class="action-btn">📤 تصدير الإشعارات</button>
+          </div>
+        </div>
+        
+        <div class="notifications-list" id="notificationsList">
+          <div class="no-notifications">لا توجد إشعارات حالياً</div>
+        </div>
+      </div>
+    </main>
+    
+    <footer class="notifications-footer">
+      <p>آخر تحديث: <span id="notificationsLastUpdate">الآن</span></p>
+      <button onclick="showAdminInterface()" class="back-btn">العودة للوحة التحكم</button>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
